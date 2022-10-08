@@ -9,6 +9,11 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+
+#define __I  volatile
+#define __O  volatile
+#define __IO volatile
+
 /**
  * Base addresses of Flash and SRAM memories
  */
@@ -231,6 +236,48 @@
 /**
  *  GPIO Register Map
  * */
+typedef __attribute__((packed)) struct {
+    uint32_t RESERVED[255];
+    __IO uint32_t DATA;               // GPIO Data
+    __IO uint32_t DIR;                // GPIO Direction
+    __IO uint32_t IS;                 // GPIO Interrupt Sense
+    __IO uint32_t IBE;                // GPIO Interrupt Both Edges
+    __IO uint32_t IEV;                // GPIO Interrupt Event
+    __IO uint32_t IM;                 // GPIO Interrupt Mask
+    __IO uint32_t RIS;                // GPIO Raw Interrupt Status
+    __I  uint32_t MIS;                // GPIO Masked Interrupt Status
+    __I  uint32_t ICR;                // GPIO Interrupt Clear
+    __O  uint32_t AFSEL;              // GPIO Alternate Function Select
+    uint32_t RESERVED1[55];
+    __IO uint32_t DR2R;               // GPIO 2-mA Drive Select
+    __IO uint32_t DR4R;               // GPIO 4-mA Drive Select
+    __IO uint32_t DR8R;               // GPIO 8-mA Drive Select
+    __IO uint32_t ODR;                // GPIO Open Drain Select
+    __IO uint32_t PUR;                // GPIO Pull-Up Select
+    __IO uint32_t PDR;                // GPIO Pull-Down Select
+    __IO uint32_t SLR;                // GPIO Slew Rate Control Select
+    __IO uint32_t DEN;                // GPIO Digital Enable
+    __IO uint32_t LOCK;               // GPIO Lock
+    __IO uint32_t CR;                 // GPIO Commit
+    __IO uint32_t AMSEL;              // GPIO Analog Mode Select
+    __IO uint32_t PCTL;               // GPIO Port Control
+    __IO uint32_t ADCCTL;             // GPIO ADC Control
+    __IO uint32_t DMACTL;             // GPIO DMA Control
+    uint32_t RESERVED2[678];
+    __I  uint32_t PeriphID4;          // GPIO Peripheral Identification 4
+    __I  uint32_t PeriphID5;          // GPIO Peripheral Identification 5
+    __I  uint32_t PeriphID6;          // GPIO Peripheral Identification 6
+    __I  uint32_t PeriphID7;          // GPIO Peripheral Identification 7
+    __I  uint32_t PeriphID0;          // GPIO Peripheral Identification 0
+    __I  uint32_t PeriphID1;          // GPIO Peripheral Identification 1
+    __I  uint32_t PeriphID2;          // GPIO Peripheral Identification 2
+    __I  uint32_t PeriphID3;          // GPIO Peripheral Identification 3
+    __I  uint32_t PCellID0;           // GPIO PrimeCell Identification 0
+    __I  uint32_t PCellID1;           // GPIO PrimeCell Identification 1
+    __I  uint32_t PCellID2;           // GPIO PrimeCell Identification 2
+    __I  uint32_t PCellID3;           // GPIO PrimeCell Identification 3
+} GPIO_RegDef_t;
+
 #define GPIOx_DATA(GPIOx_BASEADDR)           GPIOx_ADD_OFFSET(GPIOx_BASEADDR,0x000UL) // GPIO Data
 #define GPIOx_DIR(GPIOx_BASEADDR)            GPIOx_ADD_OFFSET(GPIOx_BASEADDR,0x400UL) // GPIO Direction
 #define GPIOx_IS(GPIOx_BASEADDR)             GPIOx_ADD_OFFSET(GPIOx_BASEADDR,0x404UL) // GPIO Interrupt Sense
@@ -284,5 +331,24 @@
 #define GPIOD_PCLK_DI()       (SYSCTL_RCGCGPIO &= ~(1 << 3))
 #define GPIOE_PCLK_DI()       (SYSCTL_RCGCGPIO &= ~(1 << 4))
 #define GPIOF_PCLK_DI()       (SYSCTL_RCGCGPIO &= ~(1 << 5))
+
+
+/*
+ * Peripheral definitions
+ * */
+
+#define GPIOA_APB ((GPIO_RegDef_t *) GPIOA_APB_BASE_ADDR)
+#define GPIOB_APB ((GPIO_RegDef_t *) GPIOB_APB_BASE_ADDR)
+#define GPIOC_APB ((GPIO_RegDef_t *) GPIOC_APB_BASE_ADDR)
+#define GPIOD_APB ((GPIO_RegDef_t *) GPIOD_APB_BASE_ADDR)
+#define GPIOE_APB ((GPIO_RegDef_t *) GPIOE_APB_BASE_ADDR)
+#define GPIOF_APB ((GPIO_RegDef_t *) GPIOF_APB_BASE_ADDR)
+
+#define GPIOA_AHB ((GPIO_RegDef_t *) GPIOA_AHB_BASE_ADDR)
+#define GPIOB_AHB ((GPIO_RegDef_t *) GPIOB_AHB_BASE_ADDR)
+#define GPIOC_AHB ((GPIO_RegDef_t *) GPIOC_AHB_BASE_ADDR)
+#define GPIOD_AHB ((GPIO_RegDef_t *) GPIOD_AHB_BASE_ADDR)
+#define GPIOE_AHB ((GPIO_RegDef_t *) GPIOE_AHB_BASE_ADDR)
+#define GPIOF_AHB ((GPIO_RegDef_t *) GPIOF_AHB_BASE_ADDR)
 
 #endif /* DRIVERS_INC_TM4C123GH6PM_H_ */
