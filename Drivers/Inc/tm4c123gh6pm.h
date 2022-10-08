@@ -429,7 +429,7 @@ typedef __attribute__((packed)) struct {
 #define SYSCTL_LEGACY_NVMSTAT                    SYSCTL_ADD_OFFSET(0x1A0UL) // Non-Volatile Memory Information
 
 /**
- *  GPIO Register Map
+ *  GPIO Register Register definition structure
  * */
 typedef __attribute__((packed)) struct {
     uint32_t RESERVED[255];
@@ -473,6 +473,9 @@ typedef __attribute__((packed)) struct {
     __I  uint32_t PCellID3;           // GPIO PrimeCell Identification 3
 } GPIO_RegDef_t;
 
+/**
+ *  GPIO Register Map
+ * */
 #define GPIOx_DATA(GPIOx_BASEADDR)           GPIOx_ADD_OFFSET(GPIOx_BASEADDR,0x000UL) // GPIO Data
 #define GPIOx_DIR(GPIOx_BASEADDR)            GPIOx_ADD_OFFSET(GPIOx_BASEADDR,0x400UL) // GPIO Direction
 #define GPIOx_IS(GPIOx_BASEADDR)             GPIOx_ADD_OFFSET(GPIOx_BASEADDR,0x404UL) // GPIO Interrupt Sense
