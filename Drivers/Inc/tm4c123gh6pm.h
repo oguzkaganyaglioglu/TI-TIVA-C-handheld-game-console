@@ -89,7 +89,8 @@
 /**
  *  System Control Register definition structure
  * */
-typedef __attribute__((packed)) struct {
+#pragma pack (4)
+typedef struct {
     __I  uint32_t DID0;               // Device Identification 0
     __I  uint32_t DID1;               // Device Identification 1
     __I  uint32_t LEGACY_DC0;         // Device Capabilities 0
@@ -436,7 +437,8 @@ typedef __attribute__((packed)) struct {
 /**
  *  GPIO Register Register definition structure
  * */
-typedef __attribute__((packed)) struct {
+#pragma pack (4)
+typedef struct {
     uint32_t RESERVED[255];
     __IO uint32_t DATA;               // GPIO Data
     __IO uint32_t DIR;                // GPIO Direction
