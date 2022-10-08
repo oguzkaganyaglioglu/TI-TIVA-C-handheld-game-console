@@ -268,5 +268,21 @@
 #define GPIOx_PCellID2(GPIOx_BASEADDR)       GPIOx_ADD_OFFSET(GPIOx_BASEADDR,0xFF8UL) // GPIO PrimeCell Identification 2
 #define GPIOx_PCellID3(GPIOx_BASEADDR)       GPIOx_ADD_OFFSET(GPIOx_BASEADDR,0xFFCUL) // GPIO PrimeCell Identification 3
 
+/*
+ * Clock enable/disable macros for GPIOx peripherals
+ * */
+#define GPIOA_PCLK_EN()       (SYSCTL_RCGCGPIO |= (1 << 0))
+#define GPIOB_PCLK_EN()       (SYSCTL_RCGCGPIO |= (1 << 1))
+#define GPIOC_PCLK_EN()       (SYSCTL_RCGCGPIO |= (1 << 2))
+#define GPIOD_PCLK_EN()       (SYSCTL_RCGCGPIO |= (1 << 3))
+#define GPIOE_PCLK_EN()       (SYSCTL_RCGCGPIO |= (1 << 4))
+#define GPIOF_PCLK_EN()       (SYSCTL_RCGCGPIO |= (1 << 5))
+
+#define GPIOA_PCLK_DI()       (SYSCTL_RCGCGPIO &= ~(1 << 0))
+#define GPIOB_PCLK_DI()       (SYSCTL_RCGCGPIO &= ~(1 << 1))
+#define GPIOC_PCLK_DI()       (SYSCTL_RCGCGPIO &= ~(1 << 2))
+#define GPIOD_PCLK_DI()       (SYSCTL_RCGCGPIO &= ~(1 << 3))
+#define GPIOE_PCLK_DI()       (SYSCTL_RCGCGPIO &= ~(1 << 4))
+#define GPIOF_PCLK_DI()       (SYSCTL_RCGCGPIO &= ~(1 << 5))
 
 #endif /* DRIVERS_INC_TM4C123GH6PM_H_ */
