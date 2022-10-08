@@ -549,4 +549,6 @@ typedef __attribute__((packed)) struct {
 #define GPIOE_AHB ((GPIO_RegDef_t *) GPIOE_AHB_BASE_ADDR)
 #define GPIOF_AHB ((GPIO_RegDef_t *) GPIOF_AHB_BASE_ADDR)
 
+#define SYSCTL    ((SYSCTL_RegDef_t *)  SYSCTL_BASE_ADDR)
+
 #endif /* DRIVERS_INC_TM4C123GH6PM_H_ */
