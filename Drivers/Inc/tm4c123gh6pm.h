@@ -15,6 +15,11 @@
 #define __IO volatile
 
 /**
+ *  Bit SET/CLEAR macros
+ * */
+#define SET_BIT(REGISTER, POS)     (REGISTER |= (VALUE))
+#define CLEAR_BIT(REGISTER, POS)   (REGISTER &= ~(VALUE))
+/**
  * Base addresses of Flash and SRAM memories
  */
 #define FLASH_BASE_ADDR            0x00000000UL
