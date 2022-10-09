@@ -17,8 +17,8 @@
 /**
  *  Bit SET/CLEAR macros
  * */
-#define SET_BIT(REGISTER, POS)     (REGISTER |= (VALUE))
-#define CLEAR_BIT(REGISTER, POS)   (REGISTER &= ~(VALUE))
+#define SET_BIT(REGISTER, POS)     (REGISTER |= (POS))
+#define CLEAR_BIT(REGISTER, POS)   (REGISTER &= ~(POS))
 /**
  * Base addresses of Flash and SRAM memories
  */
