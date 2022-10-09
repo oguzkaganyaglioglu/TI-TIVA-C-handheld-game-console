@@ -9,6 +9,23 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+/****************************************************************
+ *                          DEBUG ONLY
+ ****************************************************************/
+
+// #define DEBUG
+
+// ASSERT calls this function if the condition is false
+inline void __error__(char* pFilename, uint32_t line) { while(true); };
+
+#ifdef DEBUG
+// Assertion check macro
+#define ASSERT(condition) do{ if(!condition) __error__(__FILE__, __LINE__); } while(0)
+#else
+#define ASSERT(condition)
+#endif
+/****************************************************************/
+
 
 #define __I  volatile
 #define __O  volatile
