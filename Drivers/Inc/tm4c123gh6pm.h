@@ -547,6 +547,13 @@ typedef struct {
 #define GPIOE_PCLK_EN()       (SYSCTL_RCGCGPIO |= (1 << 4))
 #define GPIOF_PCLK_EN()       (SYSCTL_RCGCGPIO |= (1 << 5))
 
+#define GPIOA_PCLK_EN_W(WAIT) do{ GPIOA_PCLK_EN(); while((bool)WAIT && !((SYSCTL->PRGPIO >> 0) & 1));} while(false)
+#define GPIOB_PCLK_EN_W(WAIT) do{ GPIOB_PCLK_EN(); while((bool)WAIT && !((SYSCTL->PRGPIO >> 1) & 1));} while(false)
+#define GPIOC_PCLK_EN_W(WAIT) do{ GPIOC_PCLK_EN(); while((bool)WAIT && !((SYSCTL->PRGPIO >> 2) & 1));} while(false)
+#define GPIOD_PCLK_EN_W(WAIT) do{ GPIOD_PCLK_EN(); while((bool)WAIT && !((SYSCTL->PRGPIO >> 3) & 1));} while(false)
+#define GPIOE_PCLK_EN_W(WAIT) do{ GPIOE_PCLK_EN(); while((bool)WAIT && !((SYSCTL->PRGPIO >> 4) & 1));} while(false)
+#define GPIOF_PCLK_EN_W(WAIT) do{ GPIOF_PCLK_EN(); while((bool)WAIT && !((SYSCTL->PRGPIO >> 5) & 1));} while(false)
+
 #define GPIOA_PCLK_DI()       (SYSCTL_RCGCGPIO &= ~(1 << 0))
 #define GPIOB_PCLK_DI()       (SYSCTL_RCGCGPIO &= ~(1 << 1))
 #define GPIOC_PCLK_DI()       (SYSCTL_RCGCGPIO &= ~(1 << 2))
@@ -558,7 +565,6 @@ typedef struct {
 /*
  * Peripheral definitions
  * */
-
 #define GPIOA_APB ((GPIO_RegDef_t *) GPIOA_APB_BASE_ADDR)
 #define GPIOB_APB ((GPIO_RegDef_t *) GPIOB_APB_BASE_ADDR)
 #define GPIOC_APB ((GPIO_RegDef_t *) GPIOC_APB_BASE_ADDR)
@@ -574,5 +580,74 @@ typedef struct {
 #define GPIOF_AHB ((GPIO_RegDef_t *) GPIOF_AHB_BASE_ADDR)
 
 #define SYSCTL    ((SYSCTL_RegDef_t *)  SYSCTL_BASE_ADDR)
+
+/*
+ * GPIOx peripheral reset macros
+ * */
+#define GPIOA_REG_RST_W(WAIT)       do{(SYSCTL->SRGPIO |= (1 << 0)); (SYSCTL->SRGPIO &= ~(1 << 0)); while((bool)WAIT && !((SYSCTL->PRGPIO >> 0) & 1));} while(false)
+#define GPIOB_REG_RST_W(WAIT)       do{(SYSCTL->SRGPIO |= (1 << 1)); (SYSCTL->SRGPIO &= ~(1 << 1)); while((bool)WAIT && !((SYSCTL->PRGPIO >> 1) & 1));} while(false)
+#define GPIOC_REG_RST_W(WAIT)       do{(SYSCTL->SRGPIO |= (1 << 2)); (SYSCTL->SRGPIO &= ~(1 << 2)); while((bool)WAIT && !((SYSCTL->PRGPIO >> 2) & 1));} while(false)
+#define GPIOD_REG_RST_W(WAIT)       do{(SYSCTL->SRGPIO |= (1 << 3)); (SYSCTL->SRGPIO &= ~(1 << 3)); while((bool)WAIT && !((SYSCTL->PRGPIO >> 3) & 1));} while(false)
+#define GPIOE_REG_RST_W(WAIT)       do{(SYSCTL->SRGPIO |= (1 << 4)); (SYSCTL->SRGPIO &= ~(1 << 4)); while((bool)WAIT && !((SYSCTL->PRGPIO >> 4) & 1));} while(false)
+#define GPIOF_REG_RST_W(WAIT)       do{(SYSCTL->SRGPIO |= (1 << 5)); (SYSCTL->SRGPIO &= ~(1 << 5)); while((bool)WAIT && !((SYSCTL->PRGPIO >> 5) & 1));} while(false)
+
+#define GPIOA_REG_RST() do{GPIOA_REG_RST_W(false);} while(false)
+#define GPIOB_REG_RST() do{GPIOB_REG_RST_W(false);} while(false)
+#define GPIOC_REG_RST() do{GPIOC_REG_RST_W(false);} while(false)
+#define GPIOD_REG_RST() do{GPIOD_REG_RST_W(false);} while(false)
+#define GPIOE_REG_RST() do{GPIOE_REG_RST_W(false);} while(false)
+#define GPIOF_REG_RST() do{GPIOF_REG_RST_W(false);} while(false)
+
+// GPIO unlock value
+#define GPIO_UNLOCK_VALUE           0x4C4F434BUL
+#define GPIO_LOCK_VALUE             0x00000001UL
+
+/*
+ * GPIOx peripheral unlock/lock macros
+ * */
+#define GPIOx_UNLOCK_MACRO(pGPIOx)     (pGPIOx->LOCK = GPIO_UNLOCK_VALUE)
+#define GPIOx_LOCK_MACRO(pGPIOx)       (pGPIOx->LOCK = GPIO_LOCK_VALUE)
+
+#define GPIOA_APB_UNLOCK()       GPIOx_UNLOCK_MACRO(GPIOA_APB)
+#define GPIOB_APB_UNLOCK()       GPIOx_UNLOCK_MACRO(GPIOB_APB)
+#define GPIOC_APB_UNLOCK()       GPIOx_UNLOCK_MACRO(GPIOC_APB)
+#define GPIOD_APB_UNLOCK()       GPIOx_UNLOCK_MACRO(GPIOD_APB)
+#define GPIOE_APB_UNLOCK()       GPIOx_UNLOCK_MACRO(GPIOE_APB)
+#define GPIOF_APB_UNLOCK()       GPIOx_UNLOCK_MACRO(GPIOF_APB)
+
+#define GPIOA_AHB_UNLOCK()       GPIOx_UNLOCK_MACRO(GPIOA_AHB)
+#define GPIOB_AHB_UNLOCK()       GPIOx_UNLOCK_MACRO(GPIOB_AHB)
+#define GPIOC_AHB_UNLOCK()       GPIOx_UNLOCK_MACRO(GPIOC_AHB)
+#define GPIOD_AHB_UNLOCK()       GPIOx_UNLOCK_MACRO(GPIOD_AHB)
+#define GPIOE_AHB_UNLOCK()       GPIOx_UNLOCK_MACRO(GPIOE_AHB)
+#define GPIOF_AHB_UNLOCK()       GPIOx_UNLOCK_MACRO(GPIOF_AHB)
+
+#define GPIOA_APB_LOCK()         GPIOx_LOCK_MACRO(GPIOA_APB)
+#define GPIOB_APB_LOCK()         GPIOx_LOCK_MACRO(GPIOB_APB)
+#define GPIOC_APB_LOCK()         GPIOx_LOCK_MACRO(GPIOC_APB)
+#define GPIOD_APB_LOCK()         GPIOx_LOCK_MACRO(GPIOD_APB)
+#define GPIOE_APB_LOCK()         GPIOx_LOCK_MACRO(GPIOE_APB)
+#define GPIOF_APB_LOCK()         GPIOx_LOCK_MACRO(GPIOF_APB)
+
+#define GPIOA_AHB_LOCK()         GPIOx_LOCK_MACRO(GPIOA_AHB)
+#define GPIOB_AHB_LOCK()         GPIOx_LOCK_MACRO(GPIOB_AHB)
+#define GPIOC_AHB_LOCK()         GPIOx_LOCK_MACRO(GPIOC_AHB)
+#define GPIOD_AHB_LOCK()         GPIOx_LOCK_MACRO(GPIOD_AHB)
+#define GPIOE_AHB_LOCK()         GPIOx_LOCK_MACRO(GPIOE_AHB)
+#define GPIOF_AHB_LOCK()         GPIOx_LOCK_MACRO(GPIOF_AHB)
+
+// generic macros
+#define ENABLE                      1
+#define DISABLE                     0
+#define SET                         ENABLE
+#define RESET                       DISABLE
+#define CLEAR                       RESET
+#define GPIO_PIN_SET                SET
+#define GPIO_PIN_RESET              RESET
+
+/**
+ * Driver includes
+ * */
+#include "tm4c123gh6pm_gpio.h"
 
 #endif /* DRIVERS_INC_TM4C123GH6PM_H_ */
