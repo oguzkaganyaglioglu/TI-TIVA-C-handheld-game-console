@@ -27,6 +27,14 @@ bool validatePin(uint8_t pinNumber) {
 bool validatePortAndPin(GPIO_Handle_t* pGPIOHandle) {
     return validatePort(pGPIOHandle->pGPIOx_BaseAddress) && validatePin(pGPIOHandle->GPIO_PinConfig.PinNumber);
 }
+
+bool validateIRQTRIG(uint8_t IRQ_trigger) {
+    return IRQ_trigger == GPIO_IRQ_DISABLE || ((GPIO_IRQ_TRIG_FE | GPIO_IRQ_TRIG_RE | GPIO_IRQ_TRIG_LL | GPIO_IRQ_TRIG_HL) & IRQ_trigger) > 0;
+}
+
+bool validateIRQPRI(uint8_t IRQ_PRI) {
+    return IRQ_PRI < 8;
+}
 /****************************************************************/
 
 /****************************************************************
@@ -47,7 +55,7 @@ uint8_t portToNumber(GPIO_RegDef_t* pGPIOx) {
 
 void GPIO_Init(GPIO_Handle_t* pGPIOHandle) {
 
-    //check the arguments 
+    //check the arguments
     ASSERT(validatePortAndPin(pGPIOHandle));
 
     //enable the peripheral clock
@@ -118,7 +126,7 @@ void GPIO_Init(GPIO_Handle_t* pGPIOHandle) {
 
 void GPIO_DeInit(GPIO_RegDef_t* pGPIOx) {
 
-    //check the arguments 
+    //check the arguments
     ASSERT(validatePort(pGPIOx));
 
     // reset the given GPIO port
@@ -133,7 +141,7 @@ void GPIO_DeInit(GPIO_RegDef_t* pGPIOx) {
 
 void GPIO_PeriClockControl_H(GPIO_Handle_t* pGPIOHandle, bool EnOrDi) { return GPIO_PeriClockControl(pGPIOHandle->pGPIOx_BaseAddress, EnOrDi); }
 void GPIO_PeriClockControl(GPIO_RegDef_t* pGPIOx, bool EnOrDi) {
-    //check the arguments 
+    //check the arguments
     ASSERT(validatePort(pGPIOx));
 
     // enable/disable the peripheral clock of the given GPIO port
@@ -158,7 +166,7 @@ void GPIO_PeriClockControl(GPIO_RegDef_t* pGPIOx, bool EnOrDi) {
 
 bool GPIO_ReadPin_H(GPIO_Handle_t* pGPIOHandle) { return GPIO_ReadPin(pGPIOHandle->pGPIOx_BaseAddress, pGPIOHandle->GPIO_PinConfig.PinNumber); }
 bool GPIO_ReadPin(GPIO_RegDef_t* pGPIOx, uint8_t PinNumber) {
-    //check the arguments 
+    //check the arguments
     ASSERT(validatePort(pGPIOx));
     ASSERT(validatePin(PinNumber));
 
@@ -168,7 +176,7 @@ bool GPIO_ReadPin(GPIO_RegDef_t* pGPIOx, uint8_t PinNumber) {
 
 uint8_t GPIO_ReadPort_H(GPIO_Handle_t* pGPIOHandle) { return GPIO_ReadPort(pGPIOHandle->pGPIOx_BaseAddress); }
 uint8_t GPIO_ReadPort(GPIO_RegDef_t* pGPIOx) {
-        //check the arguments 
+        //check the arguments
     ASSERT(validatePort(pGPIOx));
 
     // read the port value
@@ -177,7 +185,7 @@ uint8_t GPIO_ReadPort(GPIO_RegDef_t* pGPIOx) {
 
 void GPIO_WritePin_H(GPIO_Handle_t* pGPIOHandle, bool Value) { return GPIO_WritePin(pGPIOHandle->pGPIOx_BaseAddress, pGPIOHandle->GPIO_PinConfig.PinNumber, Value); }
 void GPIO_WritePin(GPIO_RegDef_t* pGPIOx, uint8_t PinNumber, bool Value) {
-    //check the arguments 
+    //check the arguments
     ASSERT(validatePort(pGPIOx));
     ASSERT(validatePin(PinNumber));
 
@@ -188,7 +196,7 @@ void GPIO_WritePin(GPIO_RegDef_t* pGPIOx, uint8_t PinNumber, bool Value) {
 
 void GPIO_WritePort_H(GPIO_Handle_t* pGPIOHandle, uint8_t Value) { return GPIO_WritePort(pGPIOHandle->pGPIOx_BaseAddress, Value); }
 void GPIO_WritePort(GPIO_RegDef_t* pGPIOx, uint8_t Value) {
-    //check the arguments 
+    //check the arguments
     ASSERT(validatePort(pGPIOx));
 
     // write value to the port
@@ -197,9 +205,107 @@ void GPIO_WritePort(GPIO_RegDef_t* pGPIOx, uint8_t Value) {
 
 void GPIO_TogglePin_H(GPIO_Handle_t* pGPIOHandle) { return GPIO_TogglePin(pGPIOHandle->pGPIOx_BaseAddress, pGPIOHandle->GPIO_PinConfig.PinNumber); }
 void GPIO_TogglePin(GPIO_RegDef_t* pGPIOx, uint8_t PinNumber) {
-    //check the arguments 
+    //check the arguments
     ASSERT(validatePort(pGPIOx));
+    ASSERT(validatePin(PinNumber));
 
     // toggle the pin
     pGPIOx->DATA ^= (uint8_t)(1 << PinNumber);
+}
+
+void GPIO_IRQConfig_H(GPIO_Handle_t* pGPIOHandle, bool EnOrDi) { return GPIO_IRQConfig(pGPIOHandle->pGPIOx_BaseAddress, pGPIOHandle->GPIO_PinConfig.PinNumber, pGPIOHandle->GPIO_PinConfig.IRQ_trigger, EnOrDi); }
+void GPIO_IRQConfig(GPIO_RegDef_t* pGPIOx, uint8_t PinNumber, uint8_t IRQ_trigger, bool EnOrDi) {
+
+    //check the arguments
+    ASSERT(validatePort(pGPIOx));
+    ASSERT(validatePin(PinNumber));
+    ASSERT(validateIRQTRIG(IRQ_trigger));
+
+    // Detect irq number
+    uint32_t irqNum;
+    if (pGPIOx == GPIOA_APB || pGPIOx == GPIOA_AHB) irqNum = IRQ_NUM_GPIO_Port_A;
+    else if (pGPIOx == GPIOB_APB || pGPIOx == GPIOB_AHB) irqNum = IRQ_NUM_GPIO_Port_B;
+    else if (pGPIOx == GPIOC_APB || pGPIOx == GPIOC_AHB) irqNum = IRQ_NUM_GPIO_Port_C;
+    else if (pGPIOx == GPIOD_APB || pGPIOx == GPIOD_AHB) irqNum = IRQ_NUM_GPIO_Port_D;
+    else if (pGPIOx == GPIOE_APB || pGPIOx == GPIOE_AHB) irqNum = IRQ_NUM_GPIO_Port_E;
+    else if (pGPIOx == GPIOF_APB || pGPIOx == GPIOF_AHB) irqNum = IRQ_NUM_GPIO_Port_F;
+    else return;
+
+    if (EnOrDi && IRQ_trigger != GPIO_IRQ_DISABLE) {
+        //Enable interrupt for given GPIO port
+        NVIC->EN[irqNum / 32] = (uint32_t)(1 << (irqNum % 32));
+
+       // Remove the interrupt mask for the given pin
+        pGPIOx->IM |= (1 << PinNumber);
+
+        if (((GPIO_IRQ_TRIG_LL | GPIO_IRQ_TRIG_HL) & IRQ_trigger) > 0) {
+            // Level sensitive IRQ
+            pGPIOx->IS |= (1 << PinNumber);
+        }
+        else {
+            // edge sensitive IRQ
+            pGPIOx->IS &= ~(1 << PinNumber);
+        }
+
+        if ((GPIO_IRQ_TRIG_RE | GPIO_IRQ_TRIG_FE) == IRQ_trigger) {
+            // IRQ trigger FALLING EDGE and RISING EDGE
+            pGPIOx->IBE |= (1 << PinNumber);
+        }
+        else if (((GPIO_IRQ_TRIG_RE | GPIO_IRQ_TRIG_HL) & IRQ_trigger) > 0) {
+            // make sure IRQ trigger controlled by IEV
+            pGPIOx->IBE &= ~(1 << PinNumber);
+            // IRQ trigger HIGH LEVEl / RISING EDGE
+            pGPIOx->IEV |= (1 << PinNumber);
+        }
+        else {
+            // make sure IRQ trigger controlled by IEV
+            pGPIOx->IBE &= ~(1 << PinNumber);
+            // IRQ trigger LOW LEVEl / FALLING EDGE
+            pGPIOx->IEV &= ~(1 << PinNumber);
+        }
+    }
+    else {
+        // mask the interrupt for the given pin
+        pGPIOx->IM &= ~(1 << PinNumber);
+    }
+}
+
+void GPIO_IRQSetPriority(GPIO_RegDef_t* pGPIOx, uint8_t IRQPriority) {
+    //check the arguments
+    ASSERT(validatePort(pGPIOx));
+    ASSERT(validateIRQPRI(IRQPriority));
+
+    // Detect irq number
+    uint32_t irqNum;
+    if (pGPIOx == GPIOA_APB || pGPIOx == GPIOA_AHB) irqNum = IRQ_NUM_GPIO_Port_A;
+    else if (pGPIOx == GPIOB_APB || pGPIOx == GPIOB_AHB) irqNum = IRQ_NUM_GPIO_Port_B;
+    else if (pGPIOx == GPIOC_APB || pGPIOx == GPIOC_AHB) irqNum = IRQ_NUM_GPIO_Port_C;
+    else if (pGPIOx == GPIOD_APB || pGPIOx == GPIOD_AHB) irqNum = IRQ_NUM_GPIO_Port_D;
+    else if (pGPIOx == GPIOE_APB || pGPIOx == GPIOE_AHB) irqNum = IRQ_NUM_GPIO_Port_E;
+    else if (pGPIOx == GPIOF_APB || pGPIOx == GPIOF_AHB) irqNum = IRQ_NUM_GPIO_Port_F;
+    else return;
+
+    // set irq priority
+    NVIC->PRI[irqNum / 4] &= ~(0b111 << ((irqNum % 4) * 8) + 5);        //clear
+    NVIC->PRI[irqNum / 4] |= (IRQPriority << ((irqNum % 4) * 8) + 5);   //set
+}
+
+void GPIO_IRQHandling_H(GPIO_Handle_t* pGPIOHandle) { return GPIO_IRQHandling(pGPIOHandle->pGPIOx_BaseAddress, pGPIOHandle->GPIO_PinConfig.PinNumber); }
+void GPIO_IRQHandling(GPIO_RegDef_t* pGPIOx, uint8_t PinNumber) {
+    //check the arguments
+    ASSERT(validatePort(pGPIOx));
+    ASSERT(validatePin(PinNumber));
+
+    // clear interrupt
+    pGPIOx->ICR = (1 << PinNumber);
+}
+
+bool GPIO_IRQCausedByThis_H(GPIO_Handle_t* pGPIOHandle) { return GPIO_IRQCausedByThis(pGPIOHandle->pGPIOx_BaseAddress, pGPIOHandle->GPIO_PinConfig.PinNumber); }
+bool GPIO_IRQCausedByThis(GPIO_RegDef_t* pGPIOx, uint8_t PinNumber) {
+    //check the arguments
+    ASSERT(validatePort(pGPIOx));
+    ASSERT(validatePin(PinNumber));
+
+    // return GPIO Masked Interrupt Status
+    return (bool)(pGPIOx->MIS & (1 << PinNumber));
 }

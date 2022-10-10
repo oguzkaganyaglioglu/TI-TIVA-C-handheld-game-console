@@ -16,7 +16,7 @@
 // #define DEBUG
 
 // ASSERT calls this function if the condition is false
-inline void __error__(char* pFilename, uint32_t line) { while(true); };
+inline void __error__(char* pFilename, uint32_t line) { while (true); };
 
 #ifdef DEBUG
 // Assertion check macro
@@ -32,15 +32,44 @@ inline void __error__(char* pFilename, uint32_t line) { while(true); };
 #define __IO volatile
 
 /**
+ * @IRQ_PRIORITES
+ * IRQ(Interrupt Request) priorities
+ * */
+#define NVIC_IRQ_PRIORITY_0     0
+#define NVIC_IRQ_PRIORITY_1     1
+#define NVIC_IRQ_PRIORITY_2     2
+#define NVIC_IRQ_PRIORITY_3     3
+#define NVIC_IRQ_PRIORITY_4     4
+#define NVIC_IRQ_PRIORITY_5     5
+#define NVIC_IRQ_PRIORITY_6     6
+#define NVIC_IRQ_PRIORITY_7     7
+
+/**
  *  Bit SET/CLEAR macros
  * */
 #define SET_BIT(REGISTER, POS)     (REGISTER |= (POS))
 #define CLEAR_BIT(REGISTER, POS)   (REGISTER &= ~(POS))
+
+/**
+ * Base addresses offset macro
+ * This macro adds offset to the given base address
+ * */
+#define BASEADDR_ADD_OFFSET(BASE,OFFSET)         ((BASE) + (OFFSET))
+
+#define SYSCTL_ADD_OFFSET(OFFSET)                (*((volatile uint32_t *)(BASEADDR_ADD_OFFSET(SYSCTL_BASE_ADDR, OFFSET))))
+#define GPIOx_ADD_OFFSET(GPIOx_BASE,OFFSET)      (*((volatile uint32_t *)(BASEADDR_ADD_OFFSET(GPIOx_BASE, OFFSET))))
+
 /**
  * Base addresses of Flash and SRAM memories
  */
 #define FLASH_BASE_ADDR            0x00000000UL
 #define SRAM_BASE_ADDR             0x20000000UL
+
+/**
+ * Core Peripherals base address
+ * */
+#define CORE_PERIPHERALS_BASEADDR			0xE000E000UL
+#define NVIC_BASEADDR						BASEADDR_ADD_OFFSET(CORE_PERIPHERALS_BASEADDR, 0X100UL)
 
 /**
  * AHBx and APBx Bus Peripheral base addresses
@@ -95,208 +124,199 @@ inline void __error__(char* pFilename, uint32_t line) { while(true); };
 #define ADC1_BASE_ADDR                           0x40039000UL
 
 /**
- * Base addresses offset macro
- * This macro adds offset to the given base address
- * */
-#define BASEADDR_ADD_OFFSET(BASE,OFFSET)         ((BASE) + (OFFSET))
-
-#define SYSCTL_ADD_OFFSET(OFFSET)                (*((volatile uint32_t *)(BASEADDR_ADD_OFFSET(SYSCTL_BASE_ADDR, OFFSET))))
-#define GPIOx_ADD_OFFSET(GPIOx_BASE,OFFSET)      (*((volatile uint32_t *)(BASEADDR_ADD_OFFSET(GPIOx_BASE, OFFSET))))
-
-/**
  *  System Control Register definition structure
  * */
 #pragma pack (4)
 typedef struct {
-    __I  uint32_t DID0;               // Device Identification 0
-    __I  uint32_t DID1;               // Device Identification 1
-    __I  uint32_t LEGACY_DC0;         // Device Capabilities 0
-    uint32_t RESERVED;
-    __I  uint32_t LEGACY_DC1;         // Device Capabilities 1
-    __I  uint32_t LEGACY_DC2;         // Device Capabilities 2
-    __I  uint32_t LEGACY_DC3;         // Device Capabilities 3
-    __I  uint32_t LEGACY_DC4;         // Device Capabilities 4
-    __I  uint32_t LEGACY_DC5;         // Device Capabilities 5
-    __I  uint32_t LEGACY_DC6;         // Device Capabilities 6
-    __I  uint32_t LEGACY_DC7;         // Device Capabilities 7
-    __I  uint32_t LEGACY_DC8;         // Device Capabilities 8
-    __IO uint32_t PBORCTL;            // Brown-Out Reset Control
-    uint32_t RESERVED1[3];
-    __I  uint32_t LEGACY_SRCR0;       // Software Reset Control 0
-    __I  uint32_t LEGACY_SRCR1;       // Software Reset Control 1
-    __I  uint32_t LEGACY_SRCR2;       // Software Reset Control 2
-    uint32_t RESERVED2;
-    __I  uint32_t RIS;                // Raw Interrupt Status 50
-    __IO uint32_t IMC;                // Raw Interrupt Status
-    __IO uint32_t MISC;               // Masked Interrupt Status and Clear
-    __IO uint32_t RESC;               // Reset Cause
-    __IO uint32_t RCC;                // Run-Mode Clock Configuration
-    uint32_t RESERVED3[2];
-    __IO uint32_t GPIOHBCTL;          // GPIO High-Performance Bus Control
-    __IO uint32_t RCC2;               // Run-Mode Clock Configuration 2
-    uint32_t RESERVED4[2];
-    __IO uint32_t MOSCCTL;            // Main Oscillator Control
-    uint32_t RESERVED5[32];
-    __I  uint32_t LEGACY_RCGC0;       // Run Mode Clock Gating Control Register 0
-    __I  uint32_t LEGACY_RCGC1;       // Run Mode Clock Gating Control Register 1
-    __I  uint32_t LEGACY_RCGC2;       // Run Mode Clock Gating Control Register 2
-    uint32_t RESERVED6;
-    __I  uint32_t LEGACY_SCGC0;       // Sleep Mode Clock Gating Control Register 0
-    __I  uint32_t LEGACY_SCGC1;       // Sleep Mode Clock Gating Control Register 1
-    __I  uint32_t LEGACY_SCGC2;       // Sleep Mode Clock Gating Control Register 2
-    uint32_t RESERVED7;
-    __I  uint32_t LEGACY_DCGC0;       // Deep Sleep Mode Clock Gating Control Register 0
-    __I  uint32_t LEGACY_DCGC1;       // Deep-Sleep Mode Clock Gating Control Register 1
-    __I  uint32_t LEGACY_DCGC2;       // Deep Sleep Mode Clock Gating Control Register 2
-    uint32_t RESERVED8[6];
-    __IO uint32_t DSLPCLKCFG;         // Deep Sleep Clock Configuration
-    uint32_t RESERVED9;
-    __I  uint32_t SYSPROP;            // System Properties
-    __IO uint32_t PIOSCCAL;           // Precision Internal Oscillator Calibration
-    __I  uint32_t PIOSCSTAT;          // Precision Internal Oscillator Statistics
-    uint32_t RESERVED10[2];
-    __I  uint32_t PLLFREQ0;           // PLL Frequency 0
-    __I  uint32_t PLLFREQ1;           // PLL Frequency 1
-    __I  uint32_t PLLSTAT;            // PLL Status
-    uint32_t RESERVED11[7];
-    __IO uint32_t SLPPWRCFG;          // Sleep Power Configuration
-    __IO uint32_t DSLPPWRCFG;         // Deep-Sleep Power Configuration
-    __I  uint32_t LEGACY_DC9;         // Device Capabilities 9
-    uint32_t RESERVED12[3];
-    __I  uint32_t LEGACY_NVMSTAT;     // Non-Volatile Memory Information
-    uint32_t RESERVED13[4];
-    __IO uint32_t LDOSPCTL;           // LDO Sleep Power Control
-    __I  uint32_t LDOSPCAL;           // LDO Sleep Power Calibration
-    __IO uint32_t LDODPCTL;           // LDO Deep-Sleep Power Control
-    __I  uint32_t LDODPCAL;           // LDO Deep-Sleep Power Calibration
-    uint32_t RESERVED14[2];
-    __I  uint32_t SDPMST;             // Sleep / Deep-Sleep Power Mode Status
-    uint32_t RESERVED15[76];
-    __I  uint32_t PPWD;               // Watchdog Timer Peripheral Present
-    __I  uint32_t PPTIMER;            // 16/32-Bit General-Purpose Timer Peripheral Present
-    __I  uint32_t PPGPIO;             // General-Purpose Input/Output Peripheral Present
-    __I  uint32_t PPDMA;              // Micro Direct Memory Access Peripheral Present
-    uint32_t RESERVED16;
-    __I  uint32_t PPHIB;              // Hibernation Peripheral Present
-    __I  uint32_t PPUART;             // Universal Asynchronous Receiver/Transmitter Peripheral Present
-    __I  uint32_t PPSSI;              // Synchronous Serial Interface Peripheral Present
-    __I  uint32_t PPI2C;              // Inter-Integrated Circuit Peripheral Present
-    uint32_t RESERVED17;
-    __I  uint32_t PPUSB;              // Universal Serial Bus Peripheral Present
-    uint32_t RESERVED18[2];
-    __I  uint32_t PPCAN;              // Controller Area Network Peripheral Present
-    __I  uint32_t PPADC;              // Analog-to-Digital Converter Peripheral Present
-    __I  uint32_t PPACMP;             // Analog Comparator Peripheral Present
-    __I  uint32_t PPPWM;              // Pulse Width Modulator Peripheral Present
-    __I  uint32_t PPQEI;              // Quadrature Encoder Interface Peripheral Present
-    uint32_t RESERVED19[4];
-    __I  uint32_t PPEEPROM;           // EEPROM Peripheral Present
-    __I  uint32_t PPWTIMER;           // 32/64-Bit Wide General-Purpose Timer Peripheral Present
-    uint32_t RESERVED20[104];
-    __IO uint32_t SRWD;               // Watchdog Timer Software Reset
-    __IO uint32_t SRTIMER;            // 16/32-Bit General-Purpose Timer Software Reset
-    __IO uint32_t SRGPIO;             // General-Purpose Input/Output Software Reset
-    __IO uint32_t SRDMA;              // Micro Direct Memory Access Software Reset
-    uint32_t RESERVED21;
-    __IO uint32_t SRHIB;              // Hibernation Software Reset
-    __IO uint32_t SRUART;             // Universal Asynchronous Receiver/Transmitter Software Reset
-    __IO uint32_t SRSSI;              // Synchronous Serial Interface Software Reset
-    __IO uint32_t SRI2C;              // Inter-Integrated Circuit Software Reset
-    uint32_t RESERVED22;
-    __IO uint32_t SRUSB;              // Universal Serial Bus Software Reset
-    uint32_t RESERVED23[2];
-    __IO uint32_t SRCAN;              // Controller Area Network Software Reset
-    __IO uint32_t SRADC;              // Analog-to-Digital Converter Software Reset
-    __IO uint32_t SRACMP;             // Analog Comparator Software Reset
-    __IO uint32_t SRPWM;              // Pulse Width Modulator Software Reset
-    __IO uint32_t SRQEI;              // Quadrature Encoder Interface Software Reset
-    uint32_t RESERVED24[4];
-    __IO uint32_t SREEPROM;           // EEPROM Software Reset
-    __IO uint32_t SRWTIMER;           // 32/64-Bit Wide General-Purpose Timer Software Reset
-    uint32_t RESERVED25[40];
-    __IO uint32_t RCGCWD;             // Watchdog Timer Run Mode Clock Gating Control
-    __IO uint32_t RCGCTIMER;          // 16/32-BitGeneral-Purpose Timer Run Mode Clock Gating Control
-    __IO uint32_t RCGCGPIO;           // General-Purpose Input/Output Run Mode Clock Gating Control
-    __IO uint32_t RCGCDMA;            // Micro Direct Memory Access Run Mode Clock Gating Control
-    uint32_t RESERVED26;
-    __IO uint32_t RCGCHIB;            // Hibernation Run Mode Clock Gating Control
-    __IO uint32_t RCGCUART;           // Universal Asynchronous Receiver/Transmitter Run Mode Clock Gating Control
-    __IO uint32_t RCGCSSI;            // Synchronous Serial Interface Run Mode Clock Gating Control
-    __IO uint32_t RCGCI2C;            // Inter-Integrated Circuit Run Mode Clock Gating Control
-    uint32_t RESERVED27;
-    __IO uint32_t RCGCUSB;            // Universal Serial Bus Run Mode Clock Gating Control
-    uint32_t RESERVED28[2];
-    __IO uint32_t RCGCCAN;            // Controller Area Network RunMode Clock Gating Control
-    __IO uint32_t RCGCADC;            // Analog-to-Digital Converter Run Mode Clock Gating Control
-    __IO uint32_t RCGCACMP;           // Analog Comparator Run Mode Clock Gating Control
-    __IO uint32_t RCGCPWM;            // Pulse Width Modulator Run Mode Clock Gating Control
-    __IO uint32_t RCGCQEI;            // Quadrature Encoder Interface Run Mode Clock Gating Control
-    uint32_t RESERVED29[4];
-    __IO uint32_t RCGCEEPROM;         // EEPROM Run Mode Clock Gating Control
-    __IO uint32_t RCGCWTIMER;         // 32/64-BitWide General-Purpose Timer Run Mode Clock Gating Control
-    uint32_t RESERVED30[40];
-    __IO uint32_t SCGCWD;             // Watchdog Timer Sleep Mode Clock Gating Control
-    __IO uint32_t SCGCTIMER;          // 16/32-Bit General-Purpose Timer Sleep Mode Clock Gating Control
-    __IO uint32_t SCGCGPIO;           // General-Purpose Input/Output Sleep Mode Clock Gating Control
-    __IO uint32_t SCGCDMA;            // Micro Direct Memory Access Sleep Mode Clock Gating Control
-    uint32_t RESERVED31;
-    __IO uint32_t SCGCHIB;            // Hibernation Sleep Mode Clock Gating Control
-    __IO uint32_t SCGCUART;           // Universal Asynchronous Receiver/Transmitter Sleep Mode Clock Gating Control
-    __IO uint32_t SCGCSSI;            // Synchronous Serial Interface Sleep Mode Clock Gating Control
-    __IO uint32_t SCGCI2C;            // Inter-Integrated Circuit Sleep Mode Clock Gating Control
-    uint32_t RESERVED32;
-    __IO uint32_t SCGCUSB;            // Universal Serial Bus Sleep Mode Clock Gating Control
-    uint32_t RESERVED33[2];
-    __IO uint32_t SCGCCAN;            // Controller Area Network Sleep Mode Clock Gating Control
-    __IO uint32_t SCGCADC;            // Analog-to-Digital Converter Sleep Mode Clock Gating Control
-    __IO uint32_t SCGCACMP;           // Analog Comparator Sleep Mode Clock Gating Control
-    __IO uint32_t SCGCPWM;            // PulseWidthModulator Sleep Mode Clock Gating Control
-    __IO uint32_t SCGCQEI;            // Quadrature Encoder Interface Sleep Mode Clock Gating Control
-    uint32_t RESERVED34[4];
-    __IO uint32_t SCGCEEPROM;         // EEPROM Sleep Mode Clock Gating Control
-    __IO uint32_t SCGCWTIMER;         // 32/64-BitWideGeneral-Purpose Timer SleepMode Clock Gating Control
-    uint32_t RESERVED35[40];
-    __IO uint32_t DCGCWD;             // Watchdog Timer Deep-SleepMode Clock Gating Control
-    __IO uint32_t DCGCTIMER;          // 16/32-Bit General-Purpose Timer Deep-Sleep Mode Clock Gating Control
-    __IO uint32_t DCGCGPIO;           // General-Purpose Input/Output Deep-Sleep Mode Clock Gating Control
-    __IO uint32_t DCGCDMA;            // Micro Direct Memory Access Deep-Sleep Mode Clock Gating Control
-    uint32_t RESERVED36;
-    __IO uint32_t DCGCHIB;            // Hibernation Deep-Sleep Mode Clock Gating Control
-    __IO uint32_t DCGCUART;           // Universal Asynchronous Receiver/Transmitter Deep-Sleep Mode Clock Gating Control
-    __IO uint32_t DCGCSSI;            // Synchronous Serial Interface Deep-Sleep Mode Clock Gating Control
-    __IO uint32_t DCGCI2C;            // Inter-Integrated Circuit Deep-Sleep Mode Clock Gating Control
-    uint32_t RESERVED37;
-    __IO uint32_t DCGCUSB;            // Universal Serial Bus Deep-Sleep Mode Clock Gating Control
-    uint32_t RESERVED38[2];
-    __IO uint32_t DCGCCAN;            // Controller Area Network Deep-SleepMode Clock Gating Control
-    __IO uint32_t DCGCADC;            // Analog-to-Digital Converter Deep-Sleep Mode Clock Gating Control
-    __IO uint32_t DCGCACMP;           // Analog Comparator Deep-Sleep Mode Clock Gating Control
-    __IO uint32_t DCGCPWM;            // Pulse Width Modulator Deep-Sleep Mode Clock Gating Control
-    __IO uint32_t DCGCQEI;            // Quadrature Encoder Interface Deep-Sleep Mode Clock Gating Control
-    uint32_t RESERVED39[4];
-    __IO uint32_t DCGCEEPROM;         // EEPROM Deep-Sleep Mode Clock Gating Control
-    __IO uint32_t DCGCWTIMER;         // 32/64-BitWideGeneral-Purpose Timer Deep-Sleep Mode Clock Gating Control
-    uint32_t RESERVED40[104];
-    __I  uint32_t PRWD;               // Watchdog Timer Peripheral Ready
-    __I  uint32_t PRTIMER;            // 16/32-Bit General-Purpose Timer Peripheral Ready
-    __I  uint32_t PRGPIO;             // General-Purpose Input/Output Peripheral Ready
-    __I  uint32_t PRDMA;              // Micro Direct Memory Access Peripheral Ready
-    uint32_t RESERVED41;
-    __I  uint32_t PRHIB;              // Hibernation Peripheral Ready
-    __I  uint32_t PRUART;             // Universal Asynchronous Receiver/Transmitter Peripheral Ready
-    __I  uint32_t PRSSI;              // Synchronous Serial Interface Peripheral Ready
-    __I  uint32_t PRI2C;              // Inter-Integrated Circuit Peripheral Ready
-    uint32_t RESERVED42;
-    __I  uint32_t PRUSB;              // Universal Serial Bus Peripheral Ready
-    uint32_t RESERVED43[2];
-    __I  uint32_t PRCAN;              // Controller Area Network Peripheral Ready
-    __I  uint32_t PRADC;              // Analog-to-Digital Converter Peripheral Ready
-    __I  uint32_t PRACMP;             // Analog Comparator Peripheral Ready
-    __I  uint32_t PRPWM;              // Pulse Width Modulator Peripheral Ready
-    __I  uint32_t PRQEI;              // Quadrature Encoder Interface Peripheral Ready
-    uint32_t RESERVED44[4];
-    __I  uint32_t PREEPROM;           // EEPROM Peripheral Ready
-    __I  uint32_t PRWTIMER;           // 32/64-BitWide General-Purpose Timer Peripheral Ready
+	__I  uint32_t DID0;               // Device Identification 0
+	__I  uint32_t DID1;               // Device Identification 1
+	__I  uint32_t LEGACY_DC0;         // Device Capabilities 0
+	uint32_t RESERVED;
+	__I  uint32_t LEGACY_DC1;         // Device Capabilities 1
+	__I  uint32_t LEGACY_DC2;         // Device Capabilities 2
+	__I  uint32_t LEGACY_DC3;         // Device Capabilities 3
+	__I  uint32_t LEGACY_DC4;         // Device Capabilities 4
+	__I  uint32_t LEGACY_DC5;         // Device Capabilities 5
+	__I  uint32_t LEGACY_DC6;         // Device Capabilities 6
+	__I  uint32_t LEGACY_DC7;         // Device Capabilities 7
+	__I  uint32_t LEGACY_DC8;         // Device Capabilities 8
+	__IO uint32_t PBORCTL;            // Brown-Out Reset Control
+	uint32_t RESERVED1[3];
+	__I  uint32_t LEGACY_SRCR0;       // Software Reset Control 0
+	__I  uint32_t LEGACY_SRCR1;       // Software Reset Control 1
+	__I  uint32_t LEGACY_SRCR2;       // Software Reset Control 2
+	uint32_t RESERVED2;
+	__I  uint32_t RIS;                // Raw Interrupt Status 50
+	__IO uint32_t IMC;                // Raw Interrupt Status
+	__IO uint32_t MISC;               // Masked Interrupt Status and Clear
+	__IO uint32_t RESC;               // Reset Cause
+	__IO uint32_t RCC;                // Run-Mode Clock Configuration
+	uint32_t RESERVED3[2];
+	__IO uint32_t GPIOHBCTL;          // GPIO High-Performance Bus Control
+	__IO uint32_t RCC2;               // Run-Mode Clock Configuration 2
+	uint32_t RESERVED4[2];
+	__IO uint32_t MOSCCTL;            // Main Oscillator Control
+	uint32_t RESERVED5[32];
+	__I  uint32_t LEGACY_RCGC0;       // Run Mode Clock Gating Control Register 0
+	__I  uint32_t LEGACY_RCGC1;       // Run Mode Clock Gating Control Register 1
+	__I  uint32_t LEGACY_RCGC2;       // Run Mode Clock Gating Control Register 2
+	uint32_t RESERVED6;
+	__I  uint32_t LEGACY_SCGC0;       // Sleep Mode Clock Gating Control Register 0
+	__I  uint32_t LEGACY_SCGC1;       // Sleep Mode Clock Gating Control Register 1
+	__I  uint32_t LEGACY_SCGC2;       // Sleep Mode Clock Gating Control Register 2
+	uint32_t RESERVED7;
+	__I  uint32_t LEGACY_DCGC0;       // Deep Sleep Mode Clock Gating Control Register 0
+	__I  uint32_t LEGACY_DCGC1;       // Deep-Sleep Mode Clock Gating Control Register 1
+	__I  uint32_t LEGACY_DCGC2;       // Deep Sleep Mode Clock Gating Control Register 2
+	uint32_t RESERVED8[6];
+	__IO uint32_t DSLPCLKCFG;         // Deep Sleep Clock Configuration
+	uint32_t RESERVED9;
+	__I  uint32_t SYSPROP;            // System Properties
+	__IO uint32_t PIOSCCAL;           // Precision Internal Oscillator Calibration
+	__I  uint32_t PIOSCSTAT;          // Precision Internal Oscillator Statistics
+	uint32_t RESERVED10[2];
+	__I  uint32_t PLLFREQ0;           // PLL Frequency 0
+	__I  uint32_t PLLFREQ1;           // PLL Frequency 1
+	__I  uint32_t PLLSTAT;            // PLL Status
+	uint32_t RESERVED11[7];
+	__IO uint32_t SLPPWRCFG;          // Sleep Power Configuration
+	__IO uint32_t DSLPPWRCFG;         // Deep-Sleep Power Configuration
+	__I  uint32_t LEGACY_DC9;         // Device Capabilities 9
+	uint32_t RESERVED12[3];
+	__I  uint32_t LEGACY_NVMSTAT;     // Non-Volatile Memory Information
+	uint32_t RESERVED13[4];
+	__IO uint32_t LDOSPCTL;           // LDO Sleep Power Control
+	__I  uint32_t LDOSPCAL;           // LDO Sleep Power Calibration
+	__IO uint32_t LDODPCTL;           // LDO Deep-Sleep Power Control
+	__I  uint32_t LDODPCAL;           // LDO Deep-Sleep Power Calibration
+	uint32_t RESERVED14[2];
+	__I  uint32_t SDPMST;             // Sleep / Deep-Sleep Power Mode Status
+	uint32_t RESERVED15[76];
+	__I  uint32_t PPWD;               // Watchdog Timer Peripheral Present
+	__I  uint32_t PPTIMER;            // 16/32-Bit General-Purpose Timer Peripheral Present
+	__I  uint32_t PPGPIO;             // General-Purpose Input/Output Peripheral Present
+	__I  uint32_t PPDMA;              // Micro Direct Memory Access Peripheral Present
+	uint32_t RESERVED16;
+	__I  uint32_t PPHIB;              // Hibernation Peripheral Present
+	__I  uint32_t PPUART;             // Universal Asynchronous Receiver/Transmitter Peripheral Present
+	__I  uint32_t PPSSI;              // Synchronous Serial Interface Peripheral Present
+	__I  uint32_t PPI2C;              // Inter-Integrated Circuit Peripheral Present
+	uint32_t RESERVED17;
+	__I  uint32_t PPUSB;              // Universal Serial Bus Peripheral Present
+	uint32_t RESERVED18[2];
+	__I  uint32_t PPCAN;              // Controller Area Network Peripheral Present
+	__I  uint32_t PPADC;              // Analog-to-Digital Converter Peripheral Present
+	__I  uint32_t PPACMP;             // Analog Comparator Peripheral Present
+	__I  uint32_t PPPWM;              // Pulse Width Modulator Peripheral Present
+	__I  uint32_t PPQEI;              // Quadrature Encoder Interface Peripheral Present
+	uint32_t RESERVED19[4];
+	__I  uint32_t PPEEPROM;           // EEPROM Peripheral Present
+	__I  uint32_t PPWTIMER;           // 32/64-Bit Wide General-Purpose Timer Peripheral Present
+	uint32_t RESERVED20[104];
+	__IO uint32_t SRWD;               // Watchdog Timer Software Reset
+	__IO uint32_t SRTIMER;            // 16/32-Bit General-Purpose Timer Software Reset
+	__IO uint32_t SRGPIO;             // General-Purpose Input/Output Software Reset
+	__IO uint32_t SRDMA;              // Micro Direct Memory Access Software Reset
+	uint32_t RESERVED21;
+	__IO uint32_t SRHIB;              // Hibernation Software Reset
+	__IO uint32_t SRUART;             // Universal Asynchronous Receiver/Transmitter Software Reset
+	__IO uint32_t SRSSI;              // Synchronous Serial Interface Software Reset
+	__IO uint32_t SRI2C;              // Inter-Integrated Circuit Software Reset
+	uint32_t RESERVED22;
+	__IO uint32_t SRUSB;              // Universal Serial Bus Software Reset
+	uint32_t RESERVED23[2];
+	__IO uint32_t SRCAN;              // Controller Area Network Software Reset
+	__IO uint32_t SRADC;              // Analog-to-Digital Converter Software Reset
+	__IO uint32_t SRACMP;             // Analog Comparator Software Reset
+	__IO uint32_t SRPWM;              // Pulse Width Modulator Software Reset
+	__IO uint32_t SRQEI;              // Quadrature Encoder Interface Software Reset
+	uint32_t RESERVED24[4];
+	__IO uint32_t SREEPROM;           // EEPROM Software Reset
+	__IO uint32_t SRWTIMER;           // 32/64-Bit Wide General-Purpose Timer Software Reset
+	uint32_t RESERVED25[40];
+	__IO uint32_t RCGCWD;             // Watchdog Timer Run Mode Clock Gating Control
+	__IO uint32_t RCGCTIMER;          // 16/32-BitGeneral-Purpose Timer Run Mode Clock Gating Control
+	__IO uint32_t RCGCGPIO;           // General-Purpose Input/Output Run Mode Clock Gating Control
+	__IO uint32_t RCGCDMA;            // Micro Direct Memory Access Run Mode Clock Gating Control
+	uint32_t RESERVED26;
+	__IO uint32_t RCGCHIB;            // Hibernation Run Mode Clock Gating Control
+	__IO uint32_t RCGCUART;           // Universal Asynchronous Receiver/Transmitter Run Mode Clock Gating Control
+	__IO uint32_t RCGCSSI;            // Synchronous Serial Interface Run Mode Clock Gating Control
+	__IO uint32_t RCGCI2C;            // Inter-Integrated Circuit Run Mode Clock Gating Control
+	uint32_t RESERVED27;
+	__IO uint32_t RCGCUSB;            // Universal Serial Bus Run Mode Clock Gating Control
+	uint32_t RESERVED28[2];
+	__IO uint32_t RCGCCAN;            // Controller Area Network RunMode Clock Gating Control
+	__IO uint32_t RCGCADC;            // Analog-to-Digital Converter Run Mode Clock Gating Control
+	__IO uint32_t RCGCACMP;           // Analog Comparator Run Mode Clock Gating Control
+	__IO uint32_t RCGCPWM;            // Pulse Width Modulator Run Mode Clock Gating Control
+	__IO uint32_t RCGCQEI;            // Quadrature Encoder Interface Run Mode Clock Gating Control
+	uint32_t RESERVED29[4];
+	__IO uint32_t RCGCEEPROM;         // EEPROM Run Mode Clock Gating Control
+	__IO uint32_t RCGCWTIMER;         // 32/64-BitWide General-Purpose Timer Run Mode Clock Gating Control
+	uint32_t RESERVED30[40];
+	__IO uint32_t SCGCWD;             // Watchdog Timer Sleep Mode Clock Gating Control
+	__IO uint32_t SCGCTIMER;          // 16/32-Bit General-Purpose Timer Sleep Mode Clock Gating Control
+	__IO uint32_t SCGCGPIO;           // General-Purpose Input/Output Sleep Mode Clock Gating Control
+	__IO uint32_t SCGCDMA;            // Micro Direct Memory Access Sleep Mode Clock Gating Control
+	uint32_t RESERVED31;
+	__IO uint32_t SCGCHIB;            // Hibernation Sleep Mode Clock Gating Control
+	__IO uint32_t SCGCUART;           // Universal Asynchronous Receiver/Transmitter Sleep Mode Clock Gating Control
+	__IO uint32_t SCGCSSI;            // Synchronous Serial Interface Sleep Mode Clock Gating Control
+	__IO uint32_t SCGCI2C;            // Inter-Integrated Circuit Sleep Mode Clock Gating Control
+	uint32_t RESERVED32;
+	__IO uint32_t SCGCUSB;            // Universal Serial Bus Sleep Mode Clock Gating Control
+	uint32_t RESERVED33[2];
+	__IO uint32_t SCGCCAN;            // Controller Area Network Sleep Mode Clock Gating Control
+	__IO uint32_t SCGCADC;            // Analog-to-Digital Converter Sleep Mode Clock Gating Control
+	__IO uint32_t SCGCACMP;           // Analog Comparator Sleep Mode Clock Gating Control
+	__IO uint32_t SCGCPWM;            // PulseWidthModulator Sleep Mode Clock Gating Control
+	__IO uint32_t SCGCQEI;            // Quadrature Encoder Interface Sleep Mode Clock Gating Control
+	uint32_t RESERVED34[4];
+	__IO uint32_t SCGCEEPROM;         // EEPROM Sleep Mode Clock Gating Control
+	__IO uint32_t SCGCWTIMER;         // 32/64-BitWideGeneral-Purpose Timer SleepMode Clock Gating Control
+	uint32_t RESERVED35[40];
+	__IO uint32_t DCGCWD;             // Watchdog Timer Deep-SleepMode Clock Gating Control
+	__IO uint32_t DCGCTIMER;          // 16/32-Bit General-Purpose Timer Deep-Sleep Mode Clock Gating Control
+	__IO uint32_t DCGCGPIO;           // General-Purpose Input/Output Deep-Sleep Mode Clock Gating Control
+	__IO uint32_t DCGCDMA;            // Micro Direct Memory Access Deep-Sleep Mode Clock Gating Control
+	uint32_t RESERVED36;
+	__IO uint32_t DCGCHIB;            // Hibernation Deep-Sleep Mode Clock Gating Control
+	__IO uint32_t DCGCUART;           // Universal Asynchronous Receiver/Transmitter Deep-Sleep Mode Clock Gating Control
+	__IO uint32_t DCGCSSI;            // Synchronous Serial Interface Deep-Sleep Mode Clock Gating Control
+	__IO uint32_t DCGCI2C;            // Inter-Integrated Circuit Deep-Sleep Mode Clock Gating Control
+	uint32_t RESERVED37;
+	__IO uint32_t DCGCUSB;            // Universal Serial Bus Deep-Sleep Mode Clock Gating Control
+	uint32_t RESERVED38[2];
+	__IO uint32_t DCGCCAN;            // Controller Area Network Deep-SleepMode Clock Gating Control
+	__IO uint32_t DCGCADC;            // Analog-to-Digital Converter Deep-Sleep Mode Clock Gating Control
+	__IO uint32_t DCGCACMP;           // Analog Comparator Deep-Sleep Mode Clock Gating Control
+	__IO uint32_t DCGCPWM;            // Pulse Width Modulator Deep-Sleep Mode Clock Gating Control
+	__IO uint32_t DCGCQEI;            // Quadrature Encoder Interface Deep-Sleep Mode Clock Gating Control
+	uint32_t RESERVED39[4];
+	__IO uint32_t DCGCEEPROM;         // EEPROM Deep-Sleep Mode Clock Gating Control
+	__IO uint32_t DCGCWTIMER;         // 32/64-BitWideGeneral-Purpose Timer Deep-Sleep Mode Clock Gating Control
+	uint32_t RESERVED40[104];
+	__I  uint32_t PRWD;               // Watchdog Timer Peripheral Ready
+	__I  uint32_t PRTIMER;            // 16/32-Bit General-Purpose Timer Peripheral Ready
+	__I  uint32_t PRGPIO;             // General-Purpose Input/Output Peripheral Ready
+	__I  uint32_t PRDMA;              // Micro Direct Memory Access Peripheral Ready
+	uint32_t RESERVED41;
+	__I  uint32_t PRHIB;              // Hibernation Peripheral Ready
+	__I  uint32_t PRUART;             // Universal Asynchronous Receiver/Transmitter Peripheral Ready
+	__I  uint32_t PRSSI;              // Synchronous Serial Interface Peripheral Ready
+	__I  uint32_t PRI2C;              // Inter-Integrated Circuit Peripheral Ready
+	uint32_t RESERVED42;
+	__I  uint32_t PRUSB;              // Universal Serial Bus Peripheral Ready
+	uint32_t RESERVED43[2];
+	__I  uint32_t PRCAN;              // Controller Area Network Peripheral Ready
+	__I  uint32_t PRADC;              // Analog-to-Digital Converter Peripheral Ready
+	__I  uint32_t PRACMP;             // Analog Comparator Peripheral Ready
+	__I  uint32_t PRPWM;              // Pulse Width Modulator Peripheral Ready
+	__I  uint32_t PRQEI;              // Quadrature Encoder Interface Peripheral Ready
+	uint32_t RESERVED44[4];
+	__I  uint32_t PREEPROM;           // EEPROM Peripheral Ready
+	__I  uint32_t PRWTIMER;           // 32/64-BitWide General-Purpose Timer Peripheral Ready
 } SYSCTL_RegDef_t;
 
 /**
@@ -456,45 +476,45 @@ typedef struct {
  * */
 #pragma pack (4)
 typedef struct {
-    uint32_t RESERVED[255];
-    __IO uint32_t DATA;               // GPIO Data
-    __IO uint32_t DIR;                // GPIO Direction
-    __IO uint32_t IS;                 // GPIO Interrupt Sense
-    __IO uint32_t IBE;                // GPIO Interrupt Both Edges
-    __IO uint32_t IEV;                // GPIO Interrupt Event
-    __IO uint32_t IM;                 // GPIO Interrupt Mask
-    __IO uint32_t RIS;                // GPIO Raw Interrupt Status
-    __I  uint32_t MIS;                // GPIO Masked Interrupt Status
-    __I  uint32_t ICR;                // GPIO Interrupt Clear
-    __O  uint32_t AFSEL;              // GPIO Alternate Function Select
-    uint32_t RESERVED1[55];
-    __IO uint32_t DR2R;               // GPIO 2-mA Drive Select
-    __IO uint32_t DR4R;               // GPIO 4-mA Drive Select
-    __IO uint32_t DR8R;               // GPIO 8-mA Drive Select
-    __IO uint32_t ODR;                // GPIO Open Drain Select
-    __IO uint32_t PUR;                // GPIO Pull-Up Select
-    __IO uint32_t PDR;                // GPIO Pull-Down Select
-    __IO uint32_t SLR;                // GPIO Slew Rate Control Select
-    __IO uint32_t DEN;                // GPIO Digital Enable
-    __IO uint32_t LOCK;               // GPIO Lock
-    __IO uint32_t CR;                 // GPIO Commit
-    __IO uint32_t AMSEL;              // GPIO Analog Mode Select
-    __IO uint32_t PCTL;               // GPIO Port Control
-    __IO uint32_t ADCCTL;             // GPIO ADC Control
-    __IO uint32_t DMACTL;             // GPIO DMA Control
-    uint32_t RESERVED2[678];
-    __I  uint32_t PeriphID4;          // GPIO Peripheral Identification 4
-    __I  uint32_t PeriphID5;          // GPIO Peripheral Identification 5
-    __I  uint32_t PeriphID6;          // GPIO Peripheral Identification 6
-    __I  uint32_t PeriphID7;          // GPIO Peripheral Identification 7
-    __I  uint32_t PeriphID0;          // GPIO Peripheral Identification 0
-    __I  uint32_t PeriphID1;          // GPIO Peripheral Identification 1
-    __I  uint32_t PeriphID2;          // GPIO Peripheral Identification 2
-    __I  uint32_t PeriphID3;          // GPIO Peripheral Identification 3
-    __I  uint32_t PCellID0;           // GPIO PrimeCell Identification 0
-    __I  uint32_t PCellID1;           // GPIO PrimeCell Identification 1
-    __I  uint32_t PCellID2;           // GPIO PrimeCell Identification 2
-    __I  uint32_t PCellID3;           // GPIO PrimeCell Identification 3
+	uint32_t RESERVED[255];
+	__IO uint32_t DATA;               // GPIO Data
+	__IO uint32_t DIR;                // GPIO Direction
+	__IO uint32_t IS;                 // GPIO Interrupt Sense
+	__IO uint32_t IBE;                // GPIO Interrupt Both Edges
+	__IO uint32_t IEV;                // GPIO Interrupt Event
+	__IO uint32_t IM;                 // GPIO Interrupt Mask
+	__IO uint32_t RIS;                // GPIO Raw Interrupt Status
+	__I  uint32_t MIS;                // GPIO Masked Interrupt Status
+	__I  uint32_t ICR;                // GPIO Interrupt Clear
+	__O  uint32_t AFSEL;              // GPIO Alternate Function Select
+	uint32_t RESERVED1[55];
+	__IO uint32_t DR2R;               // GPIO 2-mA Drive Select
+	__IO uint32_t DR4R;               // GPIO 4-mA Drive Select
+	__IO uint32_t DR8R;               // GPIO 8-mA Drive Select
+	__IO uint32_t ODR;                // GPIO Open Drain Select
+	__IO uint32_t PUR;                // GPIO Pull-Up Select
+	__IO uint32_t PDR;                // GPIO Pull-Down Select
+	__IO uint32_t SLR;                // GPIO Slew Rate Control Select
+	__IO uint32_t DEN;                // GPIO Digital Enable
+	__IO uint32_t LOCK;               // GPIO Lock
+	__IO uint32_t CR;                 // GPIO Commit
+	__IO uint32_t AMSEL;              // GPIO Analog Mode Select
+	__IO uint32_t PCTL;               // GPIO Port Control
+	__IO uint32_t ADCCTL;             // GPIO ADC Control
+	__IO uint32_t DMACTL;             // GPIO DMA Control
+	uint32_t RESERVED2[678];
+	__I  uint32_t PeriphID4;          // GPIO Peripheral Identification 4
+	__I  uint32_t PeriphID5;          // GPIO Peripheral Identification 5
+	__I  uint32_t PeriphID6;          // GPIO Peripheral Identification 6
+	__I  uint32_t PeriphID7;          // GPIO Peripheral Identification 7
+	__I  uint32_t PeriphID0;          // GPIO Peripheral Identification 0
+	__I  uint32_t PeriphID1;          // GPIO Peripheral Identification 1
+	__I  uint32_t PeriphID2;          // GPIO Peripheral Identification 2
+	__I  uint32_t PeriphID3;          // GPIO Peripheral Identification 3
+	__I  uint32_t PCellID0;           // GPIO PrimeCell Identification 0
+	__I  uint32_t PCellID1;           // GPIO PrimeCell Identification 1
+	__I  uint32_t PCellID2;           // GPIO PrimeCell Identification 2
+	__I  uint32_t PCellID3;           // GPIO PrimeCell Identification 3
 } GPIO_RegDef_t;
 
 /**
@@ -561,6 +581,162 @@ typedef struct {
 #define GPIOE_PCLK_DI()       (SYSCTL_RCGCGPIO &= ~(1 << 4))
 #define GPIOF_PCLK_DI()       (SYSCTL_RCGCGPIO &= ~(1 << 5))
 
+/**
+ *  GPIO Register Register definition structure
+ * */
+#pragma pack (4)
+typedef struct {
+	__IO uint32_t EN[5];			// 0: Interrupt 0-31 Set Enable
+									// 1: Interrupt 32-63 Set Enable
+									// 2: Interrupt 64-95 Set Enable
+									// 3: Interrupt 96-127 Set Enable
+									// 4: Interrupt 128-138 Set Enable
+	uint32_t RESERVED2[27];
+	__IO uint32_t DIS[5];			// 0: Interrupt 0-31 Clear Enable
+									// 1: Interrupt 32-63 Clear Enable
+									// 2: Interrupt 64-95 Clear Enable
+									// 3: Interrupt 96-127 Clear Enable
+									// 4: Interrupt 128-138 Clear Enable
+	uint32_t RESERVED3[27];
+	__IO uint32_t PEND[5];			// 0: Interrupt 0-31 Set Pending
+									// 1: Interrupt 32-63 Set Pending
+									// 2: Interrupt 64-95 Set Pending
+									// 3: Interrupt 96-127 Set Pending
+									// 4: Interrupt 128-138 Set Pending
+	uint32_t RESERVED4[27];
+	__IO uint32_t UNPEND[5];		// 0: Interrupt 0-31 Clear Pending
+									// 1: Interrupt 32-63 Clear Pending
+									// 2: Interrupt 64-95 Clear Pending
+									// 3: Interrupt 96-127 Clear Pending
+									// 4: Interrupt 128-138 Clear Pending
+	uint32_t RESERVED5[27];
+	__I  uint32_t ACTIVE[5];		// 0: Interrupt 0-31 Active Bit
+									// 1: Interrupt 32-63 Active Bit
+									// 2: Interrupt 64-95 Active Bit
+									// 3: Interrupt 96-127 Active Bit
+									// 4: Interrupt 128-138 Active Bit
+	uint32_t RESERVED6[59];
+	__IO uint32_t PRI[35];          //  0: Interrupt 0-3 Priority
+									//  1: Interrupt 4-7 Priority
+									//  2: Interrupt 8-11 Priority
+									//  3: Interrupt 12-15 Priority
+									//  4: Interrupt 16-19 Priority
+									//  5: Interrupt 20-23 Priority
+									//  6: Interrupt 24-27 Priority
+									//  7: Interrupt 28-31 Priority
+									//  8: Interrupt 32-35 Priority
+									//  9: Interrupt 36-39 Priority
+									// 10: Interrupt 40-43 Priority
+									// 11: Interrupt 44-47 Priority
+									// 12: Interrupt 48-51 Priority
+									// 13: Interrupt 52-55 Priority
+									// 14: Interrupt 56-59 Priority
+									// 15: Interrupt 60-63 Priority
+									// 16: Interrupt 64-67 Priority
+									// 17: Interrupt 68-71 Priority
+									// 18: Interrupt 72-75 Priority
+									// 19: Interrupt 76-79 Priority
+									// 20: Interrupt 80-83 Priority
+									// 21: Interrupt 84-87 Priority
+									// 22: Interrupt 88-91 Priority
+									// 23: Interrupt 92-95 Priority
+									// 24: Interrupt 96-99 Priority
+									// 25: Interrupt 100-103 Priority
+									// 26: Interrupt 104-107 Priority
+									// 27: Interrupt 108-111 Priority
+									// 28: Interrupt 112-115 Priority
+									// 29: Interrupt 116-119 Priority
+									// 30: Interrupt 120-123 Priority
+									// 31: Interrupt 124-127 Priority
+									// 32: Interrupt 128-131 Priority
+									// 33: Interrupt 132-135 Priority
+									// 34: Interrupt 136-138 Priority
+	uint32_t RESERVED7[669];
+	__O  uint32_t SWTRIG;        // Software Trigger Interrupt 156
+
+} NVIC_RegDef_t;
+
+/**
+ * @IRQ_Numbers
+ * */
+#define  IRQ_NUM_GPIO_Port_A								  0
+#define  IRQ_NUM_GPIO_Port_B								  1
+#define  IRQ_NUM_GPIO_Port_C								  2
+#define  IRQ_NUM_GPIO_Port_D								  3
+#define  IRQ_NUM_GPIO_Port_E								  4
+#define  IRQ_NUM_UART0										  5
+#define  IRQ_NUM_UART1										  6
+#define  IRQ_NUM_SSI0										  7
+#define  IRQ_NUM_I2C0										  8
+#define  IRQ_NUM_PWM0_Fault									  9
+#define  IRQ_NUM_PWM0_Generator_0							 10
+#define  IRQ_NUM_PWM0_Generator_1							 11
+#define  IRQ_NUM_PWM0_Generator_2							 12
+#define  IRQ_NUM_QEI0										 13
+#define  IRQ_NUM_ADC0_Sequence_0							 14
+#define  IRQ_NUM_ADC0_Sequence_1							 15
+#define  IRQ_NUM_ADC0_Sequence_2							 16
+#define  IRQ_NUM_ADC0_Sequence_3							 17
+#define  IRQ_NUM_Watchdog_Timers_0_and_1					 18
+#define  IRQ_NUM_16_32_Bit_Timer_0A							 19
+#define  IRQ_NUM_16_32_Bit_Timer_0B							 20
+#define  IRQ_NUM_16_32_Bit_Timer_1A							 21
+#define  IRQ_NUM_16_32_Bit_Timer_1B							 22
+#define  IRQ_NUM_16_32_Bit_Timer_2A							 23
+#define  IRQ_NUM_16_32_Bit_Timer_2B							 24
+#define  IRQ_NUM_Analog_Comparator_0						 25
+#define  IRQ_NUM_Analog_Comparator_1						 26
+#define  IRQ_NUM_System_Control								 28
+#define  IRQ_NUM_Flash_Memory_Control_and_EEPROM_Control	 29
+#define  IRQ_NUM_GPIO_Port_F								 30
+#define  IRQ_NUM_UART2										 33
+#define  IRQ_NUM_SSI1										 34
+#define  IRQ_NUM_16_32_Bit_Timer_3A							 35
+#define  IRQ_NUM_16_32_Bit_Timer_3B							 36
+#define  IRQ_NUM_I2C1										 37
+#define  IRQ_NUM_QEI1										 38
+#define  IRQ_NUM_CAN0										 39
+#define  IRQ_NUM_CAN1										 40
+#define  IRQ_NUM_Hibernation_Module							 43
+#define  IRQ_NUM_USB										 44
+#define  IRQ_NUM_PWM_Generator_3							 45
+#define  IRQ_NUM_μDMA_Software								 46
+#define  IRQ_NUM_μDMA_Error									 47
+#define  IRQ_NUM_ADC1_Sequence_0							 48
+#define  IRQ_NUM_ADC1_Sequence_1							 49
+#define  IRQ_NUM_ADC1_Sequence_2							 50
+#define  IRQ_NUM_ADC1_Sequence_3							 51
+#define  IRQ_NUM_SSI2										 57
+#define  IRQ_NUM_SSI3										 58
+#define  IRQ_NUM_UART3										 59
+#define  IRQ_NUM_UART4										 60
+#define  IRQ_NUM_UART5										 61
+#define  IRQ_NUM_UART6										 62
+#define  IRQ_NUM_UART7										 63
+#define  IRQ_NUM_I2C2										 68
+#define  IRQ_NUM_I2C3										 69
+#define  IRQ_NUM_16_32_Bit_Timer_4A							 70
+#define  IRQ_NUM_16_32_Bit_Timer_4B							 71
+#define  IRQ_NUM_16_32_Bit_Timer_5A							 92
+#define  IRQ_NUM_16_32_Bit_Timer_5B							 93
+#define  IRQ_NUM_32_64_Bit_Timer_0A							 94
+#define  IRQ_NUM_32_64_Bit_Timer_0B							 95
+#define  IRQ_NUM_32_64_Bit_Timer_1A							 96
+#define  IRQ_NUM_32_64_Bit_Timer_1B							 97
+#define  IRQ_NUM_32_64_Bit_Timer_2A							 98
+#define  IRQ_NUM_32_64_Bit_Timer_2B							 99
+#define  IRQ_NUM_32_64_Bit_Timer_3A							100
+#define  IRQ_NUM_32_64_Bit_Timer_3B							101
+#define  IRQ_NUM_32_64_Bit_Timer_4A							102
+#define  IRQ_NUM_32_64_Bit_Timer_4B							103
+#define  IRQ_NUM_32_64_Bit_Timer_5A							104
+#define  IRQ_NUM_32_64_Bit_Timer_5B							105
+#define  IRQ_NUM_SystemException							106
+#define  IRQ_NUM_PWM1_Generator_0							134
+#define  IRQ_NUM_PWM1_Generator_1							135
+#define  IRQ_NUM_PWM1_Generator_2							136
+#define  IRQ_NUM_PWM1_Generator_3							137
+#define  IRQ_NUM_PWM1_Fault									138
 
 /*
  * Peripheral definitions
@@ -580,6 +756,7 @@ typedef struct {
 #define GPIOF_AHB ((GPIO_RegDef_t *) GPIOF_AHB_BASE_ADDR)
 
 #define SYSCTL    ((SYSCTL_RegDef_t *)  SYSCTL_BASE_ADDR)
+#define NVIC	  ((NVIC_RegDef_t *)  	NVIC_BASEADDR)
 
 /*
  * GPIOx peripheral reset macros
