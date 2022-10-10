@@ -160,6 +160,7 @@ bool GPIO_ReadPin_H(GPIO_Handle_t* pGPIOHandle) { return GPIO_ReadPin(pGPIOHandl
 bool GPIO_ReadPin(GPIO_RegDef_t* pGPIOx, uint8_t PinNumber) {
     //check the arguments 
     ASSERT(validatePort(pGPIOx));
+    ASSERT(validatePin(PinNumber));
 
     // read the pin value
     return (bool)(pGPIOx->DATA >> PinNumber) & 1;
@@ -178,6 +179,7 @@ void GPIO_WritePin_H(GPIO_Handle_t* pGPIOHandle, bool Value) { return GPIO_Write
 void GPIO_WritePin(GPIO_RegDef_t* pGPIOx, uint8_t PinNumber, bool Value) {
     //check the arguments 
     ASSERT(validatePort(pGPIOx));
+    ASSERT(validatePin(PinNumber));
 
     // write value to the pin
     if (Value) pGPIOx->DATA |= (1 << PinNumber); // set
