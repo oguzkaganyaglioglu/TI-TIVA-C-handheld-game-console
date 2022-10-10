@@ -76,18 +76,24 @@ void GPIO_Init(GPIO_Handle_t* pGPIOHandle) {
 
     if (pGPIOHandle->GPIO_PinConfig.PinCNF != GPIO_CNF_IN_A) {
         pGPIOHandle->pGPIOx_BaseAddress->CR |= (1 << pGPIOHandle->GPIO_PinConfig.PinNumber); // set
-        pGPIOHandle->pGPIOx_BaseAddress->AMSEL &= ~(1 << pGPIOHandle->GPIO_PinConfig.PinNumber); // disable analog functionality for this pin
+
+        // disable analog functionality for this pin
+        pGPIOHandle->pGPIOx_BaseAddress->AMSEL &= ~(1 << pGPIOHandle->GPIO_PinConfig.PinNumber);
 
         //todo alternate functionality modes
         if (pGPIOHandle->GPIO_PinConfig.PinCNF == GPIO_CNF_OUT_PP || pGPIOHandle->GPIO_PinConfig.PinCNF == GPIO_CNF_OUT_OD) {
             pGPIOHandle->pGPIOx_BaseAddress->PCTL &= ~(0xF << pGPIOHandle->GPIO_PinConfig.PinNumber);
-            pGPIOHandle->pGPIOx_BaseAddress->AFSEL &= ~(1 << pGPIOHandle->GPIO_PinConfig.PinNumber); //disable alternate functionality for this pin
+
+            //disable alternate functionality for this pin
+            pGPIOHandle->pGPIOx_BaseAddress->AFSEL &= ~(1 << pGPIOHandle->GPIO_PinConfig.PinNumber);
 
             if (pGPIOHandle->GPIO_PinConfig.PinCNF != GPIO_CNF_OUT_PP) {
-                pGPIOHandle->pGPIOx_BaseAddress->ODR |= (1 << pGPIOHandle->GPIO_PinConfig.PinNumber); //enable open-drain
+                //enable open-drain
+                pGPIOHandle->pGPIOx_BaseAddress->ODR |= (1 << pGPIOHandle->GPIO_PinConfig.PinNumber);
             }
             else {
-                pGPIOHandle->pGPIOx_BaseAddress->ODR &= ~(1 << pGPIOHandle->GPIO_PinConfig.PinNumber); //disable open-drain
+                //disable open-drain
+                pGPIOHandle->pGPIOx_BaseAddress->ODR &= ~(1 << pGPIOHandle->GPIO_PinConfig.PinNumber);
             }
 
         }
@@ -97,14 +103,14 @@ void GPIO_Init(GPIO_Handle_t* pGPIOHandle) {
             pGPIOHandle->pGPIOx_BaseAddress->DIR |= (1 << pGPIOHandle->GPIO_PinConfig.PinNumber);
         }
         else {
-           // pin is input
+            // pin is input
             pGPIOHandle->pGPIOx_BaseAddress->DIR &= ~(1 << pGPIOHandle->GPIO_PinConfig.PinNumber);
         }
     }
     else {
-        // pGPIOHandle->pGPIOx_BaseAddress->CR &= ~(1 << pGPIOHandle->GPIO_PinConfig.PinNumber); // clear
-        // pGPIOHandle->pGPIOx_BaseAddress->AMSEL |= (1 << pGPIOHandle->GPIO_PinConfig.PinNumber); // enable analog functionality for this pin
-        // todo
+      // pGPIOHandle->pGPIOx_BaseAddress->CR &= ~(1 << pGPIOHandle->GPIO_PinConfig.PinNumber); // clear
+      // pGPIOHandle->pGPIOx_BaseAddress->AMSEL |= (1 << pGPIOHandle->GPIO_PinConfig.PinNumber); // enable analog functionality for this pin
+      // todo
     }
 
     if (pGPIOHandle->GPIO_PinConfig.PinPuPdControl == GPIO_PU) {
@@ -114,18 +120,17 @@ void GPIO_Init(GPIO_Handle_t* pGPIOHandle) {
         pGPIOHandle->pGPIOx_BaseAddress->PDR |= (1 << pGPIOHandle->GPIO_PinConfig.PinNumber);  // enable pull-down resistor
     }
     else {
-        pGPIOHandle->pGPIOx_BaseAddress->PUR &= ~(1 << pGPIOHandle->GPIO_PinConfig.PinNumber); // disable pull-up resistor
-        pGPIOHandle->pGPIOx_BaseAddress->PDR &= ~(1 << pGPIOHandle->GPIO_PinConfig.PinNumber); // disable pull-down resistor
+        pGPIOHandle->pGPIOx_BaseAddress->PUR &= ~(1 << pGPIOHandle->GPIO_PinConfig.PinNumber);  // disable pull-up resistor
+        pGPIOHandle->pGPIOx_BaseAddress->PDR &= ~(1 << pGPIOHandle->GPIO_PinConfig.PinNumber);  // disable pull-down resistor
     }
 
     if (pGPIOHandle->GPIO_PinConfig.PinCNF != GPIO_CNF_IN_A) {
-        pGPIOHandle->pGPIOx_BaseAddress->DEN |= (1 << pGPIOHandle->GPIO_PinConfig.PinNumber); // enable digital functionality
+        pGPIOHandle->pGPIOx_BaseAddress->DEN |= (1 << pGPIOHandle->GPIO_PinConfig.PinNumber);  // enable digital functionality
     }
 
 }
 
 void GPIO_DeInit(GPIO_RegDef_t* pGPIOx) {
-
     //check the arguments
     ASSERT(validatePort(pGPIOx));
 
@@ -146,7 +151,7 @@ void GPIO_PeriClockControl(GPIO_RegDef_t* pGPIOx, bool EnOrDi) {
 
     // enable/disable the peripheral clock of the given GPIO port
     if (EnOrDi) {
-        // after enabling the peripheral clock, wait until GPIO peripheral get ready
+      // after enabling the peripheral clock, wait until GPIO peripheral get ready
         if (pGPIOx == GPIOA_APB || pGPIOx == GPIOA_AHB) GPIOA_PCLK_EN_W(true);
         else if (pGPIOx == GPIOB_APB || pGPIOx == GPIOB_AHB) GPIOB_PCLK_EN_W(true);
         else if (pGPIOx == GPIOC_APB || pGPIOx == GPIOC_AHB) GPIOC_PCLK_EN_W(true);
@@ -176,7 +181,7 @@ bool GPIO_ReadPin(GPIO_RegDef_t* pGPIOx, uint8_t PinNumber) {
 
 uint8_t GPIO_ReadPort_H(GPIO_Handle_t* pGPIOHandle) { return GPIO_ReadPort(pGPIOHandle->pGPIOx_BaseAddress); }
 uint8_t GPIO_ReadPort(GPIO_RegDef_t* pGPIOx) {
-        //check the arguments
+    //check the arguments
     ASSERT(validatePort(pGPIOx));
 
     // read the port value
@@ -190,8 +195,8 @@ void GPIO_WritePin(GPIO_RegDef_t* pGPIOx, uint8_t PinNumber, bool Value) {
     ASSERT(validatePin(PinNumber));
 
     // write value to the pin
-    if (Value) pGPIOx->DATA |= (1 << PinNumber); // set
-    else pGPIOx->DATA &= ~(1 << PinNumber);      // clear
+    if (Value) pGPIOx->DATA |= (1 << PinNumber);  // set
+    else pGPIOx->DATA &= ~(1 << PinNumber);       // clear
 }
 
 void GPIO_WritePort_H(GPIO_Handle_t* pGPIOHandle, uint8_t Value) { return GPIO_WritePort(pGPIOHandle->pGPIOx_BaseAddress, Value); }
@@ -232,10 +237,10 @@ void GPIO_IRQConfig(GPIO_RegDef_t* pGPIOx, uint8_t PinNumber, uint8_t IRQ_trigge
     else return;
 
     if (EnOrDi && IRQ_trigger != GPIO_IRQ_DISABLE) {
-        //Enable interrupt for given GPIO port
+      //Enable interrupt for given GPIO port
         NVIC->EN[irqNum / 32] = (uint32_t)(1 << (irqNum % 32));
 
-       // Remove the interrupt mask for the given pin
+        // Remove the interrupt mask for the given pin
         pGPIOx->IM |= (1 << PinNumber);
 
         if (((GPIO_IRQ_TRIG_LL | GPIO_IRQ_TRIG_HL) & IRQ_trigger) > 0) {
@@ -286,8 +291,8 @@ void GPIO_IRQSetPriority(GPIO_RegDef_t* pGPIOx, uint8_t IRQPriority) {
     else return;
 
     // set irq priority
-    NVIC->PRI[irqNum / 4] &= ~(0b111 << ((irqNum % 4) * 8) + 5);        //clear
-    NVIC->PRI[irqNum / 4] |= (IRQPriority << ((irqNum % 4) * 8) + 5);   //set
+    NVIC->PRI[irqNum / 4] &= ~(0b111 << ((irqNum % 4) * 8) + 5);      //clear
+    NVIC->PRI[irqNum / 4] |= (IRQPriority << ((irqNum % 4) * 8) + 5);  //set
 }
 
 void GPIO_IRQHandling_H(GPIO_Handle_t* pGPIOHandle) { return GPIO_IRQHandling(pGPIOHandle->pGPIOx_BaseAddress, pGPIOHandle->GPIO_PinConfig.PinNumber); }
