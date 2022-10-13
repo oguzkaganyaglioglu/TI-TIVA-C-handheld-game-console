@@ -640,6 +640,18 @@ typedef struct {
 #define GPIOE_PCLK_DI()        (SYSCTL_RCGCGPIO &= ~(1 << 4))
 #define GPIOF_PCLK_DI()        (SYSCTL_RCGCGPIO &= ~(1 << 5))
 
+/*
+ * Clock enable/disable macros for ADCx peripherals
+ * */
+#define ADC0_PCLK_EN()        (SYSCTL->RCGCADC |= (1 << 0))
+#define ADC1_PCLK_EN()        (SYSCTL->RCGCADC |= (1 << 1))
+
+#define ADC0_PCLK_EN_W(WAIT)  do{ ADC0_PCLK_EN(); while((bool)WAIT && !((SYSCTL->PRADC >> 0) & 1));} while(false)
+#define ADC1_PCLK_EN_W(WAIT)  do{ ADC1_PCLK_EN(); while((bool)WAIT && !((SYSCTL->PRADC >> 1) & 1));} while(false)
+
+#define ADC0_PCLK_DI()        (SYSCTL->RCGCADC &= ~(1 << 0))
+#define ADC1_PCLK_DI()        (SYSCTL->RCGCADC &= ~(1 << 1))
+
 /**
  *  GPIO Register Register definition structure
  * */
@@ -813,6 +825,9 @@ typedef struct {
 #define GPIOD_AHB ((GPIO_RegDef_t *) GPIOD_AHB_BASE_ADDR)
 #define GPIOE_AHB ((GPIO_RegDef_t *) GPIOE_AHB_BASE_ADDR)
 #define GPIOF_AHB ((GPIO_RegDef_t *) GPIOF_AHB_BASE_ADDR)
+
+#define ADC0      ((ADC_RegDef_t *) ADC0_BASE_ADDR)
+#define ADC1      ((ADC_RegDef_t *) ADC1_BASE_ADDR)
 
 #define SYSCTL    ((SYSCTL_RegDef_t *)  SYSCTL_BASE_ADDR)
 #define NVIC      ((NVIC_RegDef_t *)    NVIC_BASEADDR)
