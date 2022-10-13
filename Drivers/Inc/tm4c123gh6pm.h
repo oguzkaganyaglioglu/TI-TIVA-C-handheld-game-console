@@ -472,6 +472,65 @@ typedef struct {
 #define SYSCTL_LEGACY_NVMSTAT        SYSCTL_ADD_OFFSET(0x1A0UL) // Non-Volatile Memory Information
 
 /**
+ *  ADC Register Register definition structure
+ * */
+#pragma pack (4)
+typedef struct {
+    __IO uint32_t SSMUX;       // ADC Sample Sequence Input Multiplexer Select 
+    __IO uint32_t SSCTL;       // ADC Sample Sequence Control 
+    __I  uint32_t SSFIFO;      // ADC Sample Sequence Result FIFO 
+    __I  uint32_t SSFSTAT;     // ADC Sample Sequence FIFO Status
+    __IO uint32_t SSOP;        // ADC Sample Sequence Operation
+    __IO uint32_t SSDC;        // ADC Sample Sequence Digital Comparator Select
+    uint32_t RESERVED[2];
+}ADC_SS_RegDef_t;
+
+#pragma pack (4)
+typedef struct {
+    __IO uint32_t ACTSS;        // ADC Active Sample Sequencer
+    __I  uint32_t RIS;          // ADC Raw Interrupt Status
+    __IO uint32_t IM;           // Interrupt Mask
+    __IO uint32_t ISC;          // ADC Interrupt Status and Clear
+    __IO uint32_t OSTAT;        // ADC Overflow Status
+    __IO uint32_t EMUX;         // ADC Event Multiplexer Select
+    __IO uint32_t USTAT;        // ADC Underflow Status
+    __IO uint32_t TSSEL;        // ADC Trigger Source Select
+    __IO uint32_t SSPRI;        // ADC Sample Sequencer Priority
+    __IO uint32_t SPC;          // ADC Sample Phase Control
+    __IO uint32_t PSSI;         // ADC Processor Sample Sequence Initiate
+    uint32_t RESERVED;
+    __IO uint32_t SAC;          // ADC Sample Averaging Control
+    __IO uint32_t DCISC;        // ADC Digital Comparator Interrupt Status and Clear
+    __IO uint32_t CTL;          // ADC Control
+    uint32_t RESERVED1;
+    __IO ADC_SS_RegDef_t SS[4]; // Sample Sequencer
+    uint32_t RESERVED5[784];
+    __O  uint32_t DCRIC;        // ADC Digital Comparator Reset Initial Conditions
+    uint32_t RESERVED6[63];
+    __IO uint32_t DCCTL[8];     // 0: ADC Digital Comparator Control 0
+                                // 1: ADC Digital Comparator Control 1
+                                // 2: ADC Digital Comparator Control 2
+                                // 3: ADC Digital Comparator Control 3
+                                // 4: ADC Digital Comparator Control 4
+                                // 5: ADC Digital Comparator Control 5
+                                // 6: ADC Digital Comparator Control 6
+                                // 7: ADC Digital Comparator Control 7
+    uint32_t RESERVED7[8];
+    __IO uint32_t DCCMP[8];     // 0: ADC Digital Comparator Range 0
+                                // 1: ADC Digital Comparator Range 1
+                                // 2: ADC Digital Comparator Range 2
+                                // 3: ADC Digital Comparator Range 3
+                                // 4: ADC Digital Comparator Range 4
+                                // 5: ADC Digital Comparator Range 5
+                                // 6: ADC Digital Comparator Range 6
+                                // 7: ADC Digital Comparator Range 7
+    uint32_t RESERVED8[88];
+    __I  uint32_t PP;           // ADC Peripheral Properties
+    __IO uint32_t PC;           // ADC Peripheral Configuration
+    __IO uint32_t CC;           // ADC Clock Configuration
+} ADC_RegDef_t;
+
+/**
  *  GPIO Register Register definition structure
  * */
 #pragma pack (4)
