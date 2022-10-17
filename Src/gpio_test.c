@@ -16,6 +16,8 @@ void softDelay() {
   for (i = 0; i < 200000; ++i) asm("nop");
 }
 
+void GPIOF_IntHandler() {}
+
 int main(void)
 {
   GPIO_Handle_t LED_GPIO;
