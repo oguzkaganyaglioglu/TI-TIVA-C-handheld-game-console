@@ -323,7 +323,7 @@ typedef struct {
  *  System Control Register Map
  * */
 #define SYSCTL_DID0                 SYSCTL_ADD_OFFSET(0x000UL) // Device Identification 0
-#define SYSCTL_DID1                  SYSCTL_ADD_OFFSET(0x004UL) // Device Identification 1
+#define SYSCTL_DID1                 SYSCTL_ADD_OFFSET(0x004UL) // Device Identification 1
 #define SYSCTL_PBORCTL              SYSCTL_ADD_OFFSET(0x030UL) // Brown-Out Reset Control
 #define SYSCTL_RIS                  SYSCTL_ADD_OFFSET(0x050UL) // Raw Interrupt Status
 #define SYSCTL_IMC                  SYSCTL_ADD_OFFSET(0x054UL) // Raw Interrupt Status
