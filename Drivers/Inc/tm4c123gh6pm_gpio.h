@@ -9,6 +9,89 @@
 #include "tm4c123gh6pm.h"
 
 /**
+ * @ADC_PORTS
+ * */
+#define GPIO_PORT_APB_AN0           GPIOE_APB
+#define GPIO_PORT_APB_AN1           GPIOE_APB
+#define GPIO_PORT_APB_AN2           GPIOE_APB
+#define GPIO_PORT_APB_AN3           GPIOE_APB
+#define GPIO_PORT_APB_AN4           GPIOD_APB
+#define GPIO_PORT_APB_AN5           GPIOD_APB
+#define GPIO_PORT_APB_AN6           GPIOD_APB
+#define GPIO_PORT_APB_AN7           GPIOD_APB
+#define GPIO_PORT_APB_AN8           GPIOE_APB
+#define GPIO_PORT_APB_AN9           GPIOE_APB
+#define GPIO_PORT_APB_AN10          GPIOB_APB
+#define GPIO_PORT_APB_AN11          GPIOB_APB
+
+#define GPIO_PORT_AHB_AN0           GPIOE_AHB
+#define GPIO_PORT_AHB_AN1           GPIOE_AHB
+#define GPIO_PORT_AHB_AN2           GPIOE_AHB
+#define GPIO_PORT_AHB_AN3           GPIOE_AHB
+#define GPIO_PORT_AHB_AN4           GPIOD_AHB
+#define GPIO_PORT_AHB_AN5           GPIOD_AHB
+#define GPIO_PORT_AHB_AN6           GPIOD_AHB
+#define GPIO_PORT_AHB_AN7           GPIOD_AHB
+#define GPIO_PORT_AHB_AN8           GPIOE_AHB
+#define GPIO_PORT_AHB_AN9           GPIOE_AHB
+#define GPIO_PORT_AHB_AN10          GPIOB_AHB
+#define GPIO_PORT_AHB_AN11          GPIOB_AHB
+
+/**
+ * @ADC_Numbers
+ * */
+#define AN0            0
+#define AN1            1
+#define AN2            2
+#define AN3            3
+#define AN4            4
+#define AN5            5
+#define AN6            6
+#define AN7            7
+#define AN8            8
+#define AN9            9
+#define AN10           10
+#define AN11           11
+
+/**
+ * @ADC_TRIGERS
+ * */
+#define ADC_TRIG_PROCESSOR            0x0
+#define ADC_TRIG_ANALOG_CMP_0         0x1
+#define ADC_TRIG_ANALOG_CMP_1         0x2
+#define ADC_TRIG_EXT_GPIO             0x4
+#define ADC_TRIG_TIMER                0x5
+#define ADC_TRIG_PWM_GEN_0            0x6
+#define ADC_TRIG_PWM_GEN_1            0x7
+#define ADC_TRIG_PWM_GEN_2            0x8
+#define ADC_TRIG_PWM_GEN_3            0x9
+#define ADC_TRIG_ALWAYS               0xF
+
+/**
+ * @ADC_SS_Numbers
+ * */
+#define ADC_SS0            0
+#define ADC_SS1            1
+#define ADC_SS2            2
+#define ADC_SS3            3
+
+/**
+ * @ADC_SS_CTL
+ * */
+#define ADC_SSCTL_SDIS      0b0001      // Sample Differential Input Select
+#define ADC_SSCTL_EOS       0b0010      // End of Sequenc
+#define ADC_SSCTL_SIE       0b0100      // Sample Interrupt Enable
+#define ADC_SSCTL_STSS      0b1000      // 1st Sample Temp Sensor Select
+
+/**
+ * @ADC_SAMPLING_RATES
+ * */
+#define ADC_SAMPLING_RATE_125K       0x1 // 125 ksps
+#define ADC_SAMPLING_RATE_250K       0x3 // 250 ksps
+#define ADC_SAMPLING_RATE_500K       0x5 // 500 ksps
+#define ADC_SAMPLING_RATE_1M         0x7 // 1 Msps
+
+/**
  * @GPIO_PIN_NUMBERS
  * GPIO pin numbers
  * */
@@ -20,6 +103,22 @@
 #define GPIO_PIN_5              5
 #define GPIO_PIN_6              6
 #define GPIO_PIN_7              7
+
+/**
+ * ADC pin numbers
+ * */
+#define GPIO_PIN_AN0    3
+#define GPIO_PIN_AN1    2
+#define GPIO_PIN_AN2    1
+#define GPIO_PIN_AN3    0
+#define GPIO_PIN_AN4    3
+#define GPIO_PIN_AN5    2
+#define GPIO_PIN_AN6    1
+#define GPIO_PIN_AN7    0
+#define GPIO_PIN_AN8    5
+#define GPIO_PIN_AN9    4
+#define GPIO_PIN_AN10   4
+#define GPIO_PIN_AN11   5
 
 
 /**
@@ -33,7 +132,7 @@
  * @GPIO_PIN_CNF
  * */
 #define GPIO_CNF_IN             0 // General purpose input
-#define GPIO_CNF_IN_A           1 // Analog mode
+#define GPIO_CNF_IN_AN          1 // Analog mode
 
 #define GPIO_CNF_OUT_PP         4 // General purpose output push-pull
 #define GPIO_CNF_OUT_OD         5 // General purpose output Open-drain
@@ -65,8 +164,18 @@ typedef struct {
 } GPIO_PinConfig_t;
 
 typedef struct {
+    uint8_t ADC_Number;             /** Possible values from @ADC_Numbers */
+    uint8_t SS;                     /** Sample Sequencer. Possible values from @ADC_SS_Numbers */
+    uint8_t SSCTL;                  /** Sample Sequencer Controller. Possible values from @ADC_SS_CTL */
+    uint8_t SR;                     /** Sample Rate. Possible values from @ADC_SAMPLING_RATES */
+    uint8_t TRIG;                   /** Trigger Source. Possible values from @ADC_TRIGERS */
+} ADC_Config_t;
+
+typedef struct {
     GPIO_RegDef_t* pGPIOx_BaseAddress;  //This pointer holds the base address of the GPIO port
-    GPIO_PinConfig_t GPIO_PinConfig;    //This pointer holds the GPIO pin configuration settings
+    ADC_RegDef_t* pADCx_BaseAddress;    //This pointer holds the base address of the ADC port.
+    ADC_Config_t ADC_PinConfig;         //This variable holds the ADC configuration settings
+    GPIO_PinConfig_t GPIO_PinConfig;    //This variable holds the GPIO pin configuration settings
 } GPIO_Handle_t;
 
 

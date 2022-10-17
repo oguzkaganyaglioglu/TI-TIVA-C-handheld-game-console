@@ -50,6 +50,16 @@ uint8_t portToNumber(GPIO_RegDef_t* pGPIOx) {
     ASSERT(false);
     return 0;
 }
+
+uint8_t getGPIO_BUS(GPIO_RegDef_t* pGPIOx) {
+    if (pGPIOx == GPIOA_AHB) return GPIO_BUS_AHB;
+    else if (pGPIOx == GPIOB_AHB) return GPIO_BUS_AHB;
+    else if (pGPIOx == GPIOC_AHB) return GPIO_BUS_AHB;
+    else if (pGPIOx == GPIOD_AHB) return GPIO_BUS_AHB;
+    else if (pGPIOx == GPIOE_AHB) return GPIO_BUS_AHB;
+    else if (pGPIOx == GPIOF_AHB) return GPIO_BUS_AHB;
+    return GPIO_BUS_APB;
+}
 /****************************************************************/
 
 
@@ -60,6 +70,9 @@ void GPIO_Init(GPIO_Handle_t* pGPIOHandle) {
 
     //enable the peripheral clock
     GPIO_PeriClockControl(pGPIOHandle->pGPIOx_BaseAddress, ENABLE);
+
+    // Detect GPIO bus
+    pGPIOHandle->GPIO_PinConfig.BusControl = getGPIO_BUS(pGPIOHandle->pGPIOx_BaseAddress);
 
     // select the bus
     if (pGPIOHandle->GPIO_PinConfig.BusControl == GPIO_BUS_AHB) {
@@ -74,9 +87,10 @@ void GPIO_Init(GPIO_Handle_t* pGPIOHandle) {
     // unlock the given GPIO port
     GPIOx_UNLOCK_MACRO(pGPIOHandle->pGPIOx_BaseAddress);
 
-    if (pGPIOHandle->GPIO_PinConfig.PinCNF != GPIO_CNF_IN_A) {
-        pGPIOHandle->pGPIOx_BaseAddress->CR |= (1 << pGPIOHandle->GPIO_PinConfig.PinNumber); // set
+    //The corresponding GPIOAFSEL, GPIOPUR, GPIOPDR, or GPIODEN bits can be written
+    pGPIOHandle->pGPIOx_BaseAddress->CR |= (1 << pGPIOHandle->GPIO_PinConfig.PinNumber);
 
+    if (pGPIOHandle->GPIO_PinConfig.PinCNF != GPIO_CNF_IN_AN) {
         // disable analog functionality for this pin
         pGPIOHandle->pGPIOx_BaseAddress->AMSEL &= ~(1 << pGPIOHandle->GPIO_PinConfig.PinNumber);
 
@@ -108,9 +122,41 @@ void GPIO_Init(GPIO_Handle_t* pGPIOHandle) {
         }
     }
     else {
-      // pGPIOHandle->pGPIOx_BaseAddress->CR &= ~(1 << pGPIOHandle->GPIO_PinConfig.PinNumber); // clear
-      // pGPIOHandle->pGPIOx_BaseAddress->AMSEL |= (1 << pGPIOHandle->GPIO_PinConfig.PinNumber); // enable analog functionality for this pin
-      // todo
+
+        if (pGPIOHandle->pADCx_BaseAddress == ADC1) ADC1_PCLK_EN_W(true);
+        else ADC0_PCLK_EN_W(true);
+
+        // enable alternate functionality for this pin
+        pGPIOHandle->pGPIOx_BaseAddress->AFSEL |= (1 << pGPIOHandle->GPIO_PinConfig.PinNumber);
+
+        // disable digital functionality
+        pGPIOHandle->pGPIOx_BaseAddress->DEN &= ~(1 << pGPIOHandle->GPIO_PinConfig.PinNumber);
+
+        // enable analog functionality
+        pGPIOHandle->pGPIOx_BaseAddress->AMSEL |= (1 << pGPIOHandle->GPIO_PinConfig.PinNumber);
+
+        // disable sample sequencer
+        pGPIOHandle->pADCx_BaseAddress->ACTSS &= ~(1 << pGPIOHandle->ADC_PinConfig.SS);
+
+        // set trigger
+        pGPIOHandle->pADCx_BaseAddress->EMUX &= ~(0xF << (pGPIOHandle->ADC_PinConfig.SS * 4));
+        pGPIOHandle->pADCx_BaseAddress->EMUX |= (pGPIOHandle->ADC_PinConfig.TRIG << (pGPIOHandle->ADC_PinConfig.SS * 4));
+
+        // select analog channel 
+        pGPIOHandle->pADCx_BaseAddress->SS[pGPIOHandle->ADC_PinConfig.SS].SSMUX = pGPIOHandle->ADC_PinConfig.ADC_Number;
+
+        // configure sample sequencer control register
+        pGPIOHandle->pADCx_BaseAddress->SS[pGPIOHandle->ADC_PinConfig.SS].SSCTL = pGPIOHandle->ADC_PinConfig.SSCTL;
+
+        // set sampling rate
+        pGPIOHandle->pADCx_BaseAddress->PC = pGPIOHandle->ADC_PinConfig.SR;
+
+        // start sampling
+        pGPIOHandle->pADCx_BaseAddress->PSSI |= (1 << pGPIOHandle->ADC_PinConfig.SS);
+
+        // enable sample sequencer
+        pGPIOHandle->pADCx_BaseAddress->ACTSS |= (1 << pGPIOHandle->ADC_PinConfig.SS);
+
     }
 
     if (pGPIOHandle->GPIO_PinConfig.PinPuPdControl == GPIO_PU) {
@@ -124,9 +170,16 @@ void GPIO_Init(GPIO_Handle_t* pGPIOHandle) {
         pGPIOHandle->pGPIOx_BaseAddress->PDR &= ~(1 << pGPIOHandle->GPIO_PinConfig.PinNumber);  // disable pull-down resistor
     }
 
-    if (pGPIOHandle->GPIO_PinConfig.PinCNF != GPIO_CNF_IN_A) {
-        pGPIOHandle->pGPIOx_BaseAddress->DEN |= (1 << pGPIOHandle->GPIO_PinConfig.PinNumber);  // enable digital functionality
+    if (pGPIOHandle->GPIO_PinConfig.PinCNF != GPIO_CNF_IN_AN) {
+        // disable analog functionality
+        pGPIOHandle->pGPIOx_BaseAddress->AMSEL &= ~(1 << pGPIOHandle->GPIO_PinConfig.PinNumber);
+
+        // enable digital functionality
+        pGPIOHandle->pGPIOx_BaseAddress->DEN |= (1 << pGPIOHandle->GPIO_PinConfig.PinNumber);
     }
+
+    //The corresponding GPIOAFSEL, GPIOPUR, GPIOPDR, or GPIODEN bits cannot be written
+    pGPIOHandle->pGPIOx_BaseAddress->CR &= ~(1 << pGPIOHandle->GPIO_PinConfig.PinNumber);
 
 }
 
