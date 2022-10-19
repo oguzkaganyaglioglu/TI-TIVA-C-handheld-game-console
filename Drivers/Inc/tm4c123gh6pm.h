@@ -652,6 +652,24 @@ typedef struct {
 #define ADC0_PCLK_DI()        (SYSCTL->RCGCADC &= ~(1 << 0))
 #define ADC1_PCLK_DI()        (SYSCTL->RCGCADC &= ~(1 << 1))
 
+/*
+ * Clock enable/disable macros for SSIx peripherals
+ * */
+#define SPI0_PCLK_EN()        (SYSCTL->RCGCSSI |= (1 << 0))
+#define SPI1_PCLK_EN()        (SYSCTL->RCGCSSI |= (1 << 1))
+#define SPI2_PCLK_EN()        (SYSCTL->RCGCSSI |= (1 << 2))
+#define SPI3_PCLK_EN()        (SYSCTL->RCGCSSI |= (1 << 3))
+
+#define SPI0_PCLK_EN_W(WAIT)  do{ SPI0_PCLK_EN(); while((bool)WAIT && !((SYSCTL->PRSSI >> 0) & 1));} while(false)
+#define SPI1_PCLK_EN_W(WAIT)  do{ SPI1_PCLK_EN(); while((bool)WAIT && !((SYSCTL->PRSSI >> 1) & 1));} while(false)
+#define SPI2_PCLK_EN_W(WAIT)  do{ SPI2_PCLK_EN(); while((bool)WAIT && !((SYSCTL->PRSSI >> 2) & 1));} while(false)
+#define SPI3_PCLK_EN_W(WAIT)  do{ SPI3_PCLK_EN(); while((bool)WAIT && !((SYSCTL->PRSSI >> 3) & 1));} while(false)
+
+#define SPI0_PCLK_DI()        (SYSCTL->RCGCSSI &= ~(1 << 0))
+#define SPI1_PCLK_DI()        (SYSCTL->RCGCSSI &= ~(1 << 1))
+#define SPI2_PCLK_DI()        (SYSCTL->RCGCSSI &= ~(1 << 2))
+#define SPI3_PCLK_DI()        (SYSCTL->RCGCSSI &= ~(1 << 3))
+
 /**
  *  GPIO Register Register definition structure
  * */
