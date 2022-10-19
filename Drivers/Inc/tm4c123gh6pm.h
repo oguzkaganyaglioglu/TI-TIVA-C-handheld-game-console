@@ -948,6 +948,31 @@ typedef struct {
 #define GPIOE_AHB_LOCK()        GPIOx_LOCK_MACRO(GPIOE_AHB)
 #define GPIOF_AHB_LOCK()        GPIOx_LOCK_MACRO(GPIOF_AHB)
 
+
+/**
+ * Bit position definitions for SPIx peripheral
+ * */
+
+/* SPI CR0 */
+#define SPI_CR0_DSS             0 // SSI Data Size Select
+#define SPI_CR0_CPOL            4 // SSI Frame Format Select
+#define SPI_CR0_SPO             6 // SSI Serial Clock Polarity
+#define SPI_CR0_SPH             7 // SSI Serial Clock Phase
+#define SPI_CR0_SCR             8 // SSI Serial Clock Rate
+
+/* SPI CR1 */
+#define SPI_CR1_LBM             0 // SSI Loopback Mode
+#define SPI_CR1_SSE             1 // SSI Synchronous Serial Port Enable
+#define SPI_CR1_MS              2 // SSI Master/Slave Select
+#define SPI_CR1_EOT             4 // End of Transmission
+
+/* SPI SR */
+#define SPI_SR_TFE              0 // SSI Transmit FIFO Empty
+#define SPI_SR_TNF              1 // SSI Transmit FIFO Not Full
+#define SPI_SR_RNE              2 // SSI Receive FIFO Not Empty
+#define SPI_SR_RFF              3 // SSI Receive FIFO Full
+#define SPI_SR_BSY              4 // SSI Busy Bit
+
 // generic macros
 #define ENABLE                  1
 #define DISABLE                 0
