@@ -883,6 +883,16 @@ typedef struct {
 #define SYSCTL    ((SYSCTL_RegDef_t *)  SYSCTL_BASE_ADDR)
 #define NVIC      ((NVIC_RegDef_t *)    NVIC_BASEADDR)
 
+#define SSI0      ((SSI_RegDef_t *)    SSI0_BASEADDR)
+#define SSI1      ((SSI_RegDef_t *)    SSI1_BASEADDR)
+#define SSI2      ((SSI_RegDef_t *)    SSI2_BASEADDR)
+#define SSI3      ((SSI_RegDef_t *)    SSI3_BASEADDR)
+
+#define SPI0       SSI0
+#define SPI1       SSI1
+#define SPI2       SSI2
+#define SPI3       SSI3
+
 /*
  * GPIOx peripheral reset macros
  * */
