@@ -955,7 +955,7 @@ typedef struct {
 
 /* SPI CR0 */
 #define SPI_CR0_DSS             0 // SSI Data Size Select
-#define SPI_CR0_CPOL            4 // SSI Frame Format Select
+#define SPI_CR0_FRF             4 // SSI Frame Format Select
 #define SPI_CR0_SPO             6 // SSI Serial Clock Polarity
 #define SPI_CR0_SPH             7 // SSI Serial Clock Phase
 #define SPI_CR0_SCR             8 // SSI Serial Clock Rate
