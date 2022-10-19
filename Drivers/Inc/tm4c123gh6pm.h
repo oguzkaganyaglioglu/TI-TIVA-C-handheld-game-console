@@ -124,6 +124,39 @@ inline void __error__(char* pFilename, uint32_t line) { while (true); };
 #define ADC1_BASE_ADDR                0x40039000UL
 
 /**
+ *  SSI Register definition structure
+ * */
+#pragma pack (4)
+typedef struct {
+    __IO uint32_t SSICR0;           // SSI Control 0
+    __IO uint32_t SSICR1;           // SSI Control 1
+    __IO uint32_t SSIDR;            // SSI Data
+    __I  uint32_t SSISR;            // SSI Status
+    __IO uint32_t SSICPSR;          // SSI Clock Prescale
+    __IO uint32_t SSIIM;            // SSI Interrupt Mask
+    __I  uint32_t SSIRIS;           // SSI Raw Interrupt Status
+    __I  uint32_t SSIMIS;           // SSI Masked Interrupt Status
+    __O  uint32_t SSIICR;           // SSI Interrupt Clear
+    __IO uint32_t SSIDMACTL;        // SSI DMA Control
+    uint32_t RESERVED[1000];
+    __IO uint32_t SSICC;            // SSI Clock Configuration
+    __I  uint32_t SSIPeriphID4;     // SSI Peripheral Identification 4
+    __I  uint32_t SSIPeriphID5;     // SSI Peripheral Identification 5
+    __I  uint32_t SSIPeriphID6;     // SSI Peripheral Identification 6
+    __I  uint32_t SSIPeriphID7;     // SSI Peripheral Identification 7
+    __I  uint32_t SSIPeriphID0;     // SSI Peripheral Identification 0
+    __I  uint32_t SSIPeriphID1;     // SSI Peripheral Identification 1
+    __I  uint32_t SSIPeriphID2;     // SSI Peripheral Identification 2
+    __I  uint32_t SSIPeriphID3;     // SSI Peripheral Identification 3
+    __I  uint32_t SSIPCellID0;      // SSI PrimeCell Identification 0
+    __I  uint32_t SSIPCellID1;      // SSI PrimeCell Identification 1
+    __I  uint32_t SSIPCellID2;      // SSI PrimeCell Identification 2
+    __I  uint32_t SSIPCellID3;      // SSI PrimeCell Identification 3
+} SSI_RegDef_t;
+
+typedef SSI_RegDef_t SPI_RegDef_t;
+
+/**
  *  System Control Register definition structure
  * */
 #pragma pack (4)
