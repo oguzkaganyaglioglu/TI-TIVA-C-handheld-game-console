@@ -136,8 +136,8 @@
 
 #define GPIO_CNF_OUT_PP         4 // General purpose output push-pull
 #define GPIO_CNF_OUT_OD         5 // General purpose output Open-drain
-#define GPIO_CNF_OUT_AF_PP      6 // Alternate function output Push-pull
-#define GPIO_CNF_OUT_AF_OD      7 // Alternate function output Open-drain
+// #define GPIO_CNF_OUT_AF_PP      6 // Alternate function output Push-pull
+// #define GPIO_CNF_OUT_AF_OD      7 // Alternate function output Open-drain
 
 /**
  * @GPIO_BUS

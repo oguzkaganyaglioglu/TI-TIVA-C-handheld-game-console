@@ -94,12 +94,18 @@ void GPIO_Init(GPIO_Handle_t* pGPIOHandle) {
         // disable analog functionality for this pin
         pGPIOHandle->pGPIOx_BaseAddress->AMSEL &= ~(1 << pGPIOHandle->GPIO_PinConfig.PinNumber);
 
-        //todo alternate functionality modes
         if (pGPIOHandle->GPIO_PinConfig.PinCNF == GPIO_CNF_OUT_PP || pGPIOHandle->GPIO_PinConfig.PinCNF == GPIO_CNF_OUT_OD) {
             pGPIOHandle->pGPIOx_BaseAddress->PCTL &= ~(0xF << pGPIOHandle->GPIO_PinConfig.PinNumber);
 
-            //disable alternate functionality for this pin
-            pGPIOHandle->pGPIOx_BaseAddress->AFSEL &= ~(1 << pGPIOHandle->GPIO_PinConfig.PinNumber);
+            if (pGPIOHandle->GPIO_PinConfig.PinAltFuncMode == 0) {
+                //disable alternate functionality for this pin
+                pGPIOHandle->pGPIOx_BaseAddress->AFSEL &= ~(1 << pGPIOHandle->GPIO_PinConfig.PinNumber);
+            }
+            else {
+                pGPIOHandle->pGPIOx_BaseAddress->AFSEL |= (1 << pGPIOHandle->GPIO_PinConfig.PinNumber);
+                pGPIOHandle->pGPIOx_BaseAddress->PCTL &= ~(0xF << (pGPIOHandle->GPIO_PinConfig.PinNumber * 4));
+                pGPIOHandle->pGPIOx_BaseAddress->PCTL |= (pGPIOHandle->GPIO_PinConfig.PinAltFuncMode << (pGPIOHandle->GPIO_PinConfig.PinNumber * 4));
+            }
 
             if (pGPIOHandle->GPIO_PinConfig.PinCNF != GPIO_CNF_OUT_PP) {
                 //enable open-drain
