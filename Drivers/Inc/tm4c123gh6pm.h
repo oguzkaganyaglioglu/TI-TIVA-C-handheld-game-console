@@ -986,5 +986,6 @@ typedef struct {
  * Driver includes
  * */
 #include "tm4c123gh6pm_gpio.h"
+#include "tm4c123gh6pm_spi.h"
 
 #endif /* DRIVERS_INC_TM4C123GH6PM_H_ */
