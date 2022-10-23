@@ -1096,6 +1096,55 @@ typedef struct {
 #define GPIO_PIN_RESET          RESET
 
 /**
+ * Bit position definitions for (W)TIMERx peripheral
+ * */
+#define TIMER_CTL_TAEN          0  // GPTM Timer A Enable
+#define TIMER_CTL_TASTALL       1  // GPTM Timer A Stall Enable
+#define TIMER_CTL_TAEVENT       2  // GPTM Timer A Event Mode
+#define TIMER_CTL_RTCEN         4  // GPTM RTC Stall Enable
+#define TIMER_CTL_TAOTE         5  // GPTM Timer A Output Trigger Enable
+#define TIMER_CTL_TAPWML        6  // GPTM Timer A PWM Output Level
+#define TIMER_CTL_TBEN          8  // GPTM Timer B Enable
+#define TIMER_CTL_TBSTALL       9  // GPTM Timer B Stall Enable
+#define TIMER_CTL_TBEVENT       10 // GPTM Timer B Event Mode
+#define TIMER_CTL_TBOTE         13 // GPTM Timer B Output Trigger Enable
+#define TIMER_CTL_TBPWML        14 // GPTM Timer B PWM Output Level
+
+#define TIMER_TxMR_TxMR         0  // GPTM Timer x Mode
+#define TIMER_TxMR_TxCMR        2  // GPTM Timer x Capture Mode
+#define TIMER_TxMR_TxAMS        3  // GPTM Timer x Alternate Mode Select
+#define TIMER_TxMR_TxCDIR       4  // GPTM Timer x Count Direction
+#define TIMER_TxMR_TxMIE        5  // GPTM Timer x Match Interrupt Enable
+#define TIMER_TxMR_TxWOT        6  // GPTM Timer x Wait-on-Trigger
+#define TIMER_TxMR_TxSNAPS      7  // GPTM Timer x Snap-Shot Mode
+#define TIMER_TxMR_TxILD        8  // GPTM Timer x Interval Load Write
+#define TIMER_TxMR_TxPWMIE      9  // GPTM Timer x PWM Interrupt Enable
+#define TIMER_TxMR_TxMRSU       10 // GPTM Timer x Match Register Update
+#define TIMER_TxMR_TxPLO        11 // GPTM Timer x PWM Legacy Operation
+
+#define TIMER_ICR_TATOCINT      0  // GPTM Timer A Time-Out Raw Interrupt
+#define TIMER_ICR_CAMCINT       1  // GPTM Timer A Capture Mode Match Interrupt Clear
+#define TIMER_ICR_CAECINT       2  // GPTM Timer A Capture Mode Event Interrupt Clear
+#define TIMER_ICR_RTCCINT       3  // GPTM RTC Interrupt Clear
+#define TIMER_ICR_TAMCINT       4  // GPTM Timer A Match Interrupt Clear
+#define TIMER_ICR_TBTOCINT      8  // GPTM Timer B Time-Out Interrupt Clear
+#define TIMER_ICR_CBMCINT       9  // GPTM Timer B Capture Mode Match Interrupt Clear
+#define TIMER_ICR_CBECINT       10 // GPTM Timer B Capture Mode Event Interrupt Clear
+#define TIMER_ICR_TBMCINT       11 // GPTM Timer B Match Interrupt Clear
+#define TIMER_ICR_WUECINT       16 // 32/64-Bit Wide GPTM Write Update Error Interrupt Clear
+
+#define TIMER_IMR_TATOIM        0  // GPTM Timer A Time-Out Interrupt Mask
+#define TIMER_IMR_CAMIM         1  // GPTM Timer A Capture Mode Match Interrupt Mask
+#define TIMER_IMR_CAEIM         2  // GPTM Timer A Capture Mode Event Interrupt Mask
+#define TIMER_IMR_RTCIM         3  // GPTM RTC Interrupt Mask
+#define TIMER_IMR_TAMIM         4  // GPTM Timer A Match Interrupt Mask
+#define TIMER_IMR_TBTOIM        8  // GPTM Timer B Time-Out Interrupt Mask
+#define TIMER_IMR_CBMIM         9  // GPTM Timer B Capture Mode Match Interrupt Mask
+#define TIMER_IMR_CBEIM         10 // GPTM Timer B Capture Mode Event Interrupt Mask
+#define TIMER_IMR_TBMIM         11 // GPTM Timer B Match Interrupt Mask
+#define TIMER_IMR_WUEIM         16 // 32/64-Bit Wide GPTM Write Update Error Interrupt Mask
+
+/**
  * Driver includes
  * */
 #include "tm4c123gh6pm_gpio.h"
