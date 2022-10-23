@@ -123,6 +123,57 @@ inline void __error__(char* pFilename, uint32_t line) { while (true); };
 #define ADC0_BASE_ADDR                0x40038000UL
 #define ADC1_BASE_ADDR                0x40039000UL
 
+#define TIMER0_BASE_ADDR              0x40030000UL
+#define TIMER1_BASE_ADDR              0x40031000UL
+#define TIMER2_BASE_ADDR              0x40032000UL
+#define TIMER3_BASE_ADDR              0x40033000UL
+#define TIMER4_BASE_ADDR              0x40034000UL
+#define TIMER5_BASE_ADDR              0x40035000UL
+
+#define WTIMER0_BASE_ADDR             0x40036000UL
+#define WTIMER1_BASE_ADDR             0x40037000UL
+#define WTIMER2_BASE_ADDR             0x4004C000UL
+#define WTIMER3_BASE_ADDR             0x4004D000UL
+#define WTIMER4_BASE_ADDR             0x4004E000UL
+#define WTIMER5_BASE_ADDR             0x4004F000UL
+
+
+/**
+ *  TIMER Register definition structure
+ * */
+#pragma pack (4)
+typedef struct {
+    __IO uint32_t CFG;         // GPTM Configuration
+    __IO uint32_t TAMR;        // GPTM Timer A Mode
+    __IO uint32_t TBMR;        // GPTM Timer B Mode
+    __IO uint32_t CTL;         // GPTM Control
+    __IO uint32_t SYNC;        // GPTM Synchronize
+    uint32_t RESERVED;
+    __IO uint32_t IMR;         // GPTM Interrupt Mask
+    __I  uint32_t RIS;         // GPTM Raw Interrupt Status
+    __I  uint32_t MIS;         // GPTM Masked Interrupt Status
+    __O  uint32_t ICR;         // GPTM Interrupt Clear
+    __IO uint32_t TAILR;       // GPTM Timer A Interval Load
+    __IO uint32_t TBILR;       // GPTM Timer B Interval Load
+    __IO uint32_t TAMATCHR;    // GPTM Timer A Match
+    __IO uint32_t TBMATCHR;    // GPTM Timer B Match
+    __IO uint32_t TAPR;        // GPTM Timer A Prescale
+    __IO uint32_t TBPR;        // GPTM Timer B Prescale
+    __IO uint32_t TAPMR;       // GPTM TimerA Prescale Match
+    __IO uint32_t TBPMR;       // GPTM TimerB Prescale Match
+    __I  uint32_t TAR;         // GPTM Timer A
+    __I  uint32_t TBR;         // GPTM Timer B
+    __IO uint32_t TAV;         // GPTM Timer A Value
+    __IO uint32_t TBV;         // GPTM Timer B Value
+    __I  uint32_t RTCPD;       // GPTM RTC Predivide
+    __I  uint32_t TAPS;        // GPTM Timer A Prescale Snapshot
+    __I  uint32_t TBPS;        // GPTM Timer B Prescale Snapshot
+    __I  uint32_t TAPV;        // GPTM Timer A Prescale Value
+    __I  uint32_t TBPV;        // GPTM Timer B Prescale Value
+    uint32_t RESERVED1[981];
+    __I  uint32_t PP;          // GPTM Peripheral Properties
+} TIMER_RegDef_t;
+
 /**
  *  SSI Register definition structure
  * */
@@ -892,6 +943,20 @@ typedef struct {
 #define SPI1       SSI1
 #define SPI2       SSI2
 #define SPI3       SSI3
+
+#define TIMER0     ((TIMER_RegDef_t *) TIMER0_BASE_ADDR)
+#define TIMER1     ((TIMER_RegDef_t *) TIMER1_BASE_ADDR)
+#define TIMER2     ((TIMER_RegDef_t *) TIMER2_BASE_ADDR)
+#define TIMER3     ((TIMER_RegDef_t *) TIMER3_BASE_ADDR)
+#define TIMER4     ((TIMER_RegDef_t *) TIMER4_BASE_ADDR)
+#define TIMER5     ((TIMER_RegDef_t *) TIMER5_BASE_ADDR)
+
+#define WTIMER0    ((TIMER_RegDef_t *) WTIMER0_BASE_ADDR)
+#define WTIMER1    ((TIMER_RegDef_t *) WTIMER1_BASE_ADDR)
+#define WTIMER2    ((TIMER_RegDef_t *) WTIMER2_BASE_ADDR)
+#define WTIMER3    ((TIMER_RegDef_t *) WTIMER3_BASE_ADDR)
+#define WTIMER4    ((TIMER_RegDef_t *) WTIMER4_BASE_ADDR)
+#define WTIMER5    ((TIMER_RegDef_t *) WTIMER5_BASE_ADDR)
 
 /*
  * GPIOx peripheral reset macros
