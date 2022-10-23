@@ -754,6 +754,54 @@ typedef struct {
 #define SPI2_PCLK_DI()        (SYSCTL->RCGCSSI &= ~(1 << 2))
 #define SPI3_PCLK_DI()        (SYSCTL->RCGCSSI &= ~(1 << 3))
 
+/*
+ * Clock enable/disable macros for TIMER peripherals
+ * */
+#define TIMER0_PCLK_EN()        (SYSCTL->RCGCTIMER |= (1 << 0))
+#define TIMER1_PCLK_EN()        (SYSCTL->RCGCTIMER |= (1 << 1))
+#define TIMER2_PCLK_EN()        (SYSCTL->RCGCTIMER |= (1 << 2))
+#define TIMER3_PCLK_EN()        (SYSCTL->RCGCTIMER |= (1 << 3))
+#define TIMER4_PCLK_EN()        (SYSCTL->RCGCTIMER |= (1 << 4))
+#define TIMER5_PCLK_EN()        (SYSCTL->RCGCTIMER |= (1 << 5))
+
+#define TIMER0_PCLK_EN_W(WAIT)  do{ TIMER0_PCLK_EN(); while((bool)WAIT && !((SYSCTL->PRTIMER >> 0) & 1));} while(false)
+#define TIMER1_PCLK_EN_W(WAIT)  do{ TIMER1_PCLK_EN(); while((bool)WAIT && !((SYSCTL->PRTIMER >> 1) & 1));} while(false)
+#define TIMER2_PCLK_EN_W(WAIT)  do{ TIMER2_PCLK_EN(); while((bool)WAIT && !((SYSCTL->PRTIMER >> 2) & 1));} while(false)
+#define TIMER3_PCLK_EN_W(WAIT)  do{ TIMER3_PCLK_EN(); while((bool)WAIT && !((SYSCTL->PRTIMER >> 3) & 1));} while(false)
+#define TIMER4_PCLK_EN_W(WAIT)  do{ TIMER4_PCLK_EN(); while((bool)WAIT && !((SYSCTL->PRTIMER >> 4) & 1));} while(false)
+#define TIMER5_PCLK_EN_W(WAIT)  do{ TIMER5_PCLK_EN(); while((bool)WAIT && !((SYSCTL->PRTIMER >> 5) & 1));} while(false)
+
+#define TIMER0_PCLK_DI()        (SYSCTL->RCGCTIMER &= ~(1 << 0))
+#define TIMER1_PCLK_DI()        (SYSCTL->RCGCTIMER &= ~(1 << 1))
+#define TIMER2_PCLK_DI()        (SYSCTL->RCGCTIMER &= ~(1 << 2))
+#define TIMER3_PCLK_DI()        (SYSCTL->RCGCTIMER &= ~(1 << 3))
+#define TIMER4_PCLK_DI()        (SYSCTL->RCGCTIMER &= ~(1 << 4))
+#define TIMER5_PCLK_DI()        (SYSCTL->RCGCTIMER &= ~(1 << 5))
+
+/*
+ * Clock enable/disable macros for WIDE TIMER peripherals
+ * */
+#define WTIMER0_PCLK_EN()        (SYSCTL->RCGCWTIMER |= (1 << 0))
+#define WTIMER1_PCLK_EN()        (SYSCTL->RCGCWTIMER |= (1 << 1))
+#define WTIMER2_PCLK_EN()        (SYSCTL->RCGCWTIMER |= (1 << 2))
+#define WTIMER3_PCLK_EN()        (SYSCTL->RCGCWTIMER |= (1 << 3))
+#define WTIMER4_PCLK_EN()        (SYSCTL->RCGCWTIMER |= (1 << 4))
+#define WTIMER5_PCLK_EN()        (SYSCTL->RCGCWTIMER |= (1 << 5))
+
+#define WTIMER0_PCLK_EN_W(WAIT)  do{ WTIMER0_PCLK_EN(); while((bool)WAIT && !((SYSCTL->PRWTIMER >> 0) & 1));} while(false)
+#define WTIMER1_PCLK_EN_W(WAIT)  do{ WTIMER1_PCLK_EN(); while((bool)WAIT && !((SYSCTL->PRWTIMER >> 1) & 1));} while(false)
+#define WTIMER2_PCLK_EN_W(WAIT)  do{ WTIMER2_PCLK_EN(); while((bool)WAIT && !((SYSCTL->PRWTIMER >> 2) & 1));} while(false)
+#define WTIMER3_PCLK_EN_W(WAIT)  do{ WTIMER3_PCLK_EN(); while((bool)WAIT && !((SYSCTL->PRWTIMER >> 3) & 1));} while(false)
+#define WTIMER4_PCLK_EN_W(WAIT)  do{ WTIMER4_PCLK_EN(); while((bool)WAIT && !((SYSCTL->PRWTIMER >> 4) & 1));} while(false)
+#define WTIMER5_PCLK_EN_W(WAIT)  do{ WTIMER5_PCLK_EN(); while((bool)WAIT && !((SYSCTL->PRWTIMER >> 5) & 1));} while(false)
+
+#define WTIMER0_PCLK_DI()        (SYSCTL->RCGCWTIMER &= ~(1 << 0))
+#define WTIMER1_PCLK_DI()        (SYSCTL->RCGCWTIMER &= ~(1 << 1))
+#define WTIMER2_PCLK_DI()        (SYSCTL->RCGCWTIMER &= ~(1 << 2))
+#define WTIMER3_PCLK_DI()        (SYSCTL->RCGCWTIMER &= ~(1 << 3))
+#define WTIMER4_PCLK_DI()        (SYSCTL->RCGCWTIMER &= ~(1 << 4))
+#define WTIMER5_PCLK_DI()        (SYSCTL->RCGCWTIMER &= ~(1 << 5))
+
 /**
  *  GPIO Register Register definition structure
  * */
