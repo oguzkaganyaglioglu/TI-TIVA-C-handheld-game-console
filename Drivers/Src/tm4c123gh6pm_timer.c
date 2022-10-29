@@ -267,3 +267,18 @@ void TIMER_IRQSetPriority(TIMER_RegDef_t* pTIMERx, uint8_t subtimer, uint8_t IRQ
     }
 
 }
+
+
+bool TIMER_IRQCausedByThis_H(TIMER_Handle_t* pTIMERHandle) { return TIMER_IRQCausedByThis(pTIMERHandle->pTIMERx_BaseAddress, pTIMERHandle->TIMER_Config.subtimer); }
+bool TIMER_IRQCausedByThis(TIMER_RegDef_t* pTIMERx, uint8_t subtimer) {
+    bool retVal = false;
+    if (subtimer == SUBTIMER_AB || subtimer == SUBTIMER_A) {
+        retVal |= (pTIMERx->MIS >> TIMER_MIS_TATOMIS) & 1;
+    }
+
+    if (subtimer == SUBTIMER_AB || subtimer == SUBTIMER_B) {
+        retVal |= (pTIMERx->MIS >> TIMER_MIS_TBTOMIS) & 1;
+    }
+
+    return retVal;
+}

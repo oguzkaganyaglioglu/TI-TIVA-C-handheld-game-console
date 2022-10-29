@@ -161,4 +161,19 @@ void TIMER_IRQSetPriority(TIMER_RegDef_t* pTIMERx, uint8_t subtimer, uint8_t IRQ
 void TIMER_IRQSetPriority_H(TIMER_Handle_t* pTIMERHandle, uint8_t IRQPriority);
 
 
+/**
+ * @fn          TIMER_IRQCausedByThis
+ *
+ * @brief       This function checks if the interrupt is caused by given TIMER
+ *
+ * @param[in]   pTIMERx    base address of the TIMER
+ * @param[in]   subtimer   subtimer, possible values from @SUBTIMERS
+ *
+ * @return      bool    true: if interrupt caused by given TIMER
+ *
+ * @note        none
+ * */
+bool TIMER_IRQCausedByThis(TIMER_RegDef_t* pTIMERx, uint8_t subtimer);
+bool TIMER_IRQCausedByThis_H(TIMER_Handle_t* pTIMERHandle);
+
 #endif /* DRIVERS_INC_TM4C123GH6PM_TIMER_H_ */

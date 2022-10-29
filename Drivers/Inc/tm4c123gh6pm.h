@@ -6,6 +6,7 @@
 #ifndef DRIVERS_INC_TM4C123GH6PM_H_
 #define DRIVERS_INC_TM4C123GH6PM_H_
 
+#include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
 
@@ -1143,6 +1144,17 @@ typedef struct {
 #define TIMER_IMR_CBEIM         10 // GPTM Timer B Capture Mode Event Interrupt Mask
 #define TIMER_IMR_TBMIM         11 // GPTM Timer B Match Interrupt Mask
 #define TIMER_IMR_WUEIM         16 // 32/64-Bit Wide GPTM Write Update Error Interrupt Mask
+
+#define TIMER_MIS_TATOMIS       0  // GPTM Timer A Time-Out Masked Interrupt
+#define TIMER_MIS_CAMMIS        1  // GPTM Timer A Capture Mode Match Masked Interrupt
+#define TIMER_MIS_CAEMIS        2  // GPTM Timer A Capture Mode Event Masked Interrupt
+#define TIMER_MIS_RTCMIS        3  // GPTM RTC Masked Interrupt
+#define TIMER_MIS_TAMMIS        4  // GPTM Timer A Match Masked Interrupt
+#define TIMER_MIS_TBTOMIS       8  // GPTM Timer B Time-Out Masked Interrupt
+#define TIMER_MIS_CBMMIS        9  // GPTM Timer B Capture Mode Match Masked Interrupt
+#define TIMER_MIS_CBEMIS        10 // GPTM Timer B Capture Mode Event Masked Interrupt
+#define TIMER_MIS_TBMMIS        11 // GPTM Timer B Match Masked Interrupt
+#define TIMER_MIS_WUEMIS        16 // 32/64-Bit Wide GPTM Write Update Error Masked Interrupt Status
 
 /**
  * Driver includes
