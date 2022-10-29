@@ -68,6 +68,6 @@ void clearRow_buffer(uint8_t* row, size_t start, size_t len) {
 
 void drawInRow_buffer(uint8_t* row, const uint8_t* byteMap, size_t start, size_t len) {
     size_t i;
-    for (i = 0; i < len && (start + i) < ROW_LEN; i++) row[start + i] = byteMap[i];
+    for (i = 0; i < len && (start + i) < ROW_LEN; i++) row[start + i] |= byteMap[i];
 }
 

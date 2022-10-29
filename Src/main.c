@@ -7,14 +7,20 @@
 #define ENEMY_LEN         11
 #define NUMBER_OF_ENEMIES 6
 
+#define ENEMY_SHOOT_INTERVAL 300
+
 #define ENEMY_ROW_LEFT_RIGHT_MARGIN 3
 #define ENEMY_LEFT_RIGHT_PADDING 1
+
+#define ENEMY_REBORN_TIME 5000
+
+#define CHARACTER_REBORN_TIME 2000
 
 #define ENEMY_HEALTH      100
 #define CHARACTER_DAMAGE  20 
 
-#define CHARACTER_HEALTH  100
-#define ENEMY_DAMAGE      10
+#define CHARACTER_HEALTH  3
+#define ENEMY_DAMAGE      1
 
 // the time it takes for the bullet to go from the bottom to the top of the screen
 #define BULLET_SPEED_MS  1000 // default speed: 1000 millisecond
@@ -24,8 +30,11 @@
 // This value indicates how many bullet each enemy can have on the screen
 #define ENEMY_MAX_BULLET_ON_SCREEN      3
 
-#define CHARACTER_BULLET_END_HEIGHT     40 // bottom: 0 & top: 47
+#define CHARACTER_BULLET_END_HEIGHT     47 // bottom: 0 & top: 47
 #define CHARACTER_BULLET_START_HEIGHT   8  // bottom: 0 & top: 47
+
+#define ENEMY_BULLET_END_HEIGHT     0 // bottom: 0 & top: 47
+#define ENEMY_BULLET_START_HEIGHT   30  // bottom: 0 & top: 47
 
 #include "tm4c123gh6pm.h"
 #include "nokia5110.h"
@@ -37,9 +46,16 @@ typedef struct {
 } bulletPos_t;
 
 typedef struct {
-  uint8_t x; // x position
-  uint8_t health;
+  uint8_t  x; // x position
+  uint8_t  health;
+  uint32_t rebornTimestamp;
 } enemy_t;
+
+typedef struct {
+  uint8_t  x; // x position
+  uint8_t  health;
+  uint32_t rebornTimestamp;
+} character_t;
 
 static const uint8_t enemyBytes[ENEMY_LEN] = {
     0x70, 0x5e, 0x12, 0xfb, 0x9e, 0x0e, 0x9e, 0xfb, 0x12, 0x5e, 0x70
@@ -80,13 +96,13 @@ TIMER_Handle_t TIMER1_A_30hz_B_1000hz;
  *  _hd = 2
  */
 
-size_t characterPos_hb = 0;
+// size_t characterPos_hb = 0;
 
 bulletPos_t characterBulletPos[CHARACTER_MAX_BULLET_ON_SCREEN];
 bulletPos_t enemyBulletPos[NUMBER_OF_ENEMIES][ENEMY_MAX_BULLET_ON_SCREEN];
 
 enemy_t enemies[NUMBER_OF_ENEMIES];
-
+character_t character;
 // max value is 4294967295
 // That's more than a month, so that should be sufficient
 uint32_t millis = 0;
@@ -129,8 +145,14 @@ int main(void)
   for (u8_forLoopI = 0; u8_forLoopI < NUMBER_OF_ENEMIES; ++u8_forLoopI) {
     enemies[u8_forLoopI].x = (ENEMY_ROW_LEFT_RIGHT_MARGIN + ENEMY_LEFT_RIGHT_PADDING) + (u8_forLoopI * ((ROW_LEN - (2 * ENEMY_ROW_LEFT_RIGHT_MARGIN)) / NUMBER_OF_ENEMIES));
     enemies[u8_forLoopI].health = ENEMY_HEALTH;
+    enemies[u8_forLoopI].rebornTimestamp = 0;
   }
 
+  /**
+   * INITIALIZE CHARACTER
+   **/
+  character.x = (ROW_LEN / 2) - (CHARACTER_LEN / 2);
+  character.health = CHARACTER_HEALTH;
 
   /**
    * POT PIN CONFIG
@@ -258,7 +280,11 @@ int main(void)
 
   uint32_t adc_value;
   uint32_t timestamp = 0;
+  uint32_t timestamp_enemyShoot = 0;
+  uint32_t timestamp_enemyBullet = 0;
   uint32_t timestamp_buttonPress = 0;
+
+  enemyBulletPos[0][0].y = 28;
 
   while (true) {
     // READ ADC
@@ -269,28 +295,117 @@ int main(void)
 
     // CALCULATE POSITION OF THE CHARACTER ON THE SCREEN
     float t = (float)adc_value / 4095.0f;
-    TIMER_IRQSuspend(TIMER1_A_30hz_B_1000hz.pTIMERx_BaseAddress, SUBTIMER_A);
     /** DISPLAY SHOULD NOT REFRESH WHILE WE UPDATE THE POSITIONS */
-    characterPos_hb = (t * (ROW_LEN - 1));
-    if (characterPos_hb < (CHARACTER_LEN / 2)) characterPos_hb = 0;
-    else if (characterPos_hb > (ROW_LEN)-(CHARACTER_LEN / 2)) characterPos_hb = (ROW_LEN)-(CHARACTER_LEN);
-    else characterPos_hb -= (CHARACTER_LEN / 2);
-    if (GPIO_ReadPin_H(&BUTTON) == 0) {
-      for (u8_forLoopI = 0; u8_forLoopI < CHARACTER_MAX_BULLET_ON_SCREEN; u8_forLoopI++) {
-        if (characterBulletPos[u8_forLoopI].done == false) continue;
-        if (!timeReached(&timestamp_buttonPress, BULLET_SPEED_MS / CHARACTER_MAX_BULLET_ON_SCREEN)) break;
-        characterBulletPos[u8_forLoopI].x = characterPos_hb + (CHARACTER_LEN / 2);
-
-        characterBulletPos[u8_forLoopI].y = CHARACTER_BULLET_START_HEIGHT;
-        characterBulletPos[u8_forLoopI].done = false;
-        break;
+    TIMER_IRQSuspend(TIMER1_A_30hz_B_1000hz.pTIMERx_BaseAddress, SUBTIMER_A);
+    if (character.health > 0) {
+      character.x = (t * (ROW_LEN - 1));
+      if (character.x < (CHARACTER_LEN / 2)) character.x = 0;
+      else if (character.x > (ROW_LEN)-(CHARACTER_LEN / 2)) character.x = (ROW_LEN)-(CHARACTER_LEN);
+      else character.x -= (CHARACTER_LEN / 2);
+      if (GPIO_ReadPin_H(&BUTTON) == 0) {
+        for (u8_forLoopI = 0; u8_forLoopI < CHARACTER_MAX_BULLET_ON_SCREEN; u8_forLoopI++) {
+          if (characterBulletPos[u8_forLoopI].done == false) continue;
+          if (!timeReached(&timestamp_buttonPress, BULLET_SPEED_MS / CHARACTER_MAX_BULLET_ON_SCREEN)) break;
+          characterBulletPos[u8_forLoopI].x = character.x + (CHARACTER_LEN / 2);
+          characterBulletPos[u8_forLoopI].y = CHARACTER_BULLET_START_HEIGHT;
+          characterBulletPos[u8_forLoopI].done = false;
+          break;
+        }
       }
     }
 
+
+    if (timeReached(&timestamp_enemyShoot, ENEMY_SHOOT_INTERVAL)) {
+      uint8_t idx = rand() % NUMBER_OF_ENEMIES;
+      if (enemies[idx].health > 0) {
+        for (u8_forLoopJ = 0; u8_forLoopJ < ENEMY_MAX_BULLET_ON_SCREEN; ++u8_forLoopJ) {
+          if (enemyBulletPos[idx][u8_forLoopJ].done == false) continue;
+          enemyBulletPos[idx][u8_forLoopJ].y = ENEMY_BULLET_START_HEIGHT;
+          enemyBulletPos[idx][u8_forLoopJ].x = enemies[idx].x + (ENEMY_LEN / 2);
+          enemyBulletPos[idx][u8_forLoopJ].done = false;
+          break;
+        }
+      }
+      else timestamp_enemyShoot = 0; // if the picken enemy is death then pick another one
+    }
+
+    if (timeReached(&timestamp_enemyBullet, 60)) {
+      for (u8_forLoopI = 0; u8_forLoopI < NUMBER_OF_ENEMIES; ++u8_forLoopI) {
+        for (u8_forLoopJ = 0; u8_forLoopJ < ENEMY_MAX_BULLET_ON_SCREEN; ++u8_forLoopJ) {
+          if (enemyBulletPos[u8_forLoopI][u8_forLoopJ].done == true) continue;
+
+          if (enemyBulletPos[u8_forLoopI][u8_forLoopJ].y > 0) enemyBulletPos[u8_forLoopI][u8_forLoopJ].y--;
+
+          if (enemyBulletPos[u8_forLoopI][u8_forLoopJ].y <= ENEMY_BULLET_END_HEIGHT) {
+            enemyBulletPos[u8_forLoopI][u8_forLoopJ].done = true;
+            continue;
+          }
+
+
+          // check if the bullet hit the character
+          if (enemyBulletPos[u8_forLoopI][u8_forLoopJ].y > ENEMY_BULLET_END_HEIGHT && enemyBulletPos[u8_forLoopI][u8_forLoopJ].y < 8 && (enemyBulletPos[u8_forLoopI][u8_forLoopJ].x + 1 >= (character.x) && enemyBulletPos[u8_forLoopI][u8_forLoopJ].x <= (character.x + CHARACTER_LEN))) {
+            // possible hit, use logical and to be sure 
+            uint8_t bullet_byteArray[3];
+
+            uint16_t bullet = 0xF000 >> (enemyBulletPos[u8_forLoopI][u8_forLoopJ].y % 8);
+            bullet_byteArray[0] = (uint8_t)((bullet >> 8) & 0xFF);
+            bullet_byteArray[1] = (uint8_t)((bullet >> 8) & 0xFF);
+            bullet_byteArray[2] = (uint8_t)((bullet >> 8) & 0xFF);
+
+
+
+            bool hit = false;
+
+            int startAddr = enemyBulletPos[u8_forLoopI][u8_forLoopJ].x - character.x;
+
+            if (startAddr >= 0 && startAddr < CHARACTER_LEN)
+              hit = hit || (bullet_byteArray[0] & characterBytes[startAddr]);
+
+            if (startAddr + 1 >= 0 && startAddr + 1 < CHARACTER_LEN)
+              hit = hit || (bullet_byteArray[1] & characterBytes[startAddr + 1]);
+
+            if (startAddr + 2 >= 0 && startAddr + 2 < CHARACTER_LEN)
+              hit = hit || (bullet_byteArray[2] & characterBytes[startAddr + 2]);
+
+            if (hit) {
+
+              enemyBulletPos[u8_forLoopI][u8_forLoopJ].done = true;
+
+              if (character.health > ENEMY_DAMAGE) character.health -= ENEMY_DAMAGE;
+              else character.health = 0;
+
+              if (character.health == 0) {
+                character.rebornTimestamp = millis + CHARACTER_REBORN_TIME;
+              }
+            }
+          }
+        }
+      }
+    }
+
+
     if (timeReached(&timestamp, 30)) {
+
       for (u8_forLoopI = 0; u8_forLoopI < CHARACTER_MAX_BULLET_ON_SCREEN; u8_forLoopI++) {
         if (characterBulletPos[u8_forLoopI].done == true) continue;
         characterBulletPos[u8_forLoopI].y++;
+
+        if (characterBulletPos[u8_forLoopI].y >= 35) {
+          for (u8_forLoopJ = 0; u8_forLoopJ < NUMBER_OF_ENEMIES; ++u8_forLoopJ) {
+            uint8_t _enemyPos_hb = enemies[u8_forLoopJ].x;
+            if (_enemyPos_hb <= characterBulletPos[u8_forLoopI].x && characterBulletPos[u8_forLoopI].x < (_enemyPos_hb + ENEMY_LEN) && enemies[u8_forLoopJ].health > 0) {
+              if (enemies[u8_forLoopJ].health > CHARACTER_DAMAGE) enemies[u8_forLoopJ].health -= CHARACTER_DAMAGE;
+              else enemies[u8_forLoopJ].health = 0;
+
+              if (enemies[u8_forLoopJ].health == 0) {
+                enemies[u8_forLoopJ].rebornTimestamp = millis + ENEMY_REBORN_TIME;
+              }
+
+              characterBulletPos[u8_forLoopI].done = true;
+            }
+          }
+        }
+
         if (characterBulletPos[u8_forLoopI].y >= CHARACTER_BULLET_END_HEIGHT) {
           characterBulletPos[u8_forLoopI].done = true;
         }
@@ -310,11 +425,14 @@ void GPIOF_IntHandler() {}
 void TIMER1A_Handler() {
   if (TIMER_IRQCausedByThis(TIMER1_A_30hz_B_1000hz.pTIMERx_BaseAddress, SUBTIMER_A)) {
 
-    uint8_t i;
+    uint8_t i, j;
 
     // clear screen buffer
     for (i = 0; i < ROW_COUNT; ++i) clearRow_buffer(screenRows[i], 0, ROW_LEN);
 
+
+
+    // draw character's bullet
     for (i = 0; i < CHARACTER_MAX_BULLET_ON_SCREEN; i++) {
       if (characterBulletPos[i].done == true) continue;
 
@@ -334,10 +452,36 @@ void TIMER1A_Handler() {
 
     }
 
+    for (i = 0; i < NUMBER_OF_ENEMIES; i++) {
 
-    drawInRow_buffer(screenRows[ROW_COUNT - 1], characterBytes, characterPos_hb, CHARACTER_LEN); // draw new data
+      for (j = 0; j < ENEMY_MAX_BULLET_ON_SCREEN; j++) {
+        if (!enemyBulletPos[i][j].done) {
 
-    // update screen
+          enemyBulletPos[i][j].x = enemies[i].x + (ENEMY_LEN / 2);
+          // draw enemy's bullet
+          uint16_t bullet = 0xF000 >> (enemyBulletPos[i][j].y % 8);
+          screenRows[(ROW_COUNT - 1) - (enemyBulletPos[i][j].y / 8)][enemyBulletPos[i][j].x - 1] |= (uint8_t)((bullet >> 8) & 0xFF); // draw bullet
+          screenRows[(ROW_COUNT - 1) - (enemyBulletPos[i][j].y / 8)][enemyBulletPos[i][j].x] |= (uint8_t)((bullet >> 8) & 0xFF); // draw bullet
+          screenRows[(ROW_COUNT - 1) - (enemyBulletPos[i][j].y / 8)][enemyBulletPos[i][j].x + 1] |= (uint8_t)((bullet >> 8) & 0xFF); // draw bullet
+
+          if ((ROW_COUNT - 1) - (enemyBulletPos[i][j].y / 8) >= 1) {
+            screenRows[((ROW_COUNT - 1) - (enemyBulletPos[i][j].y / 8) - 1)][(enemyBulletPos[i][j].x) - 1] |= (uint8_t)(bullet & 0xFF); // draw bullet
+            screenRows[((ROW_COUNT - 1) - (enemyBulletPos[i][j].y / 8) - 1)][enemyBulletPos[i][j].x] |= (uint8_t)(bullet & 0xFF); // draw bullet
+            screenRows[((ROW_COUNT - 1) - (enemyBulletPos[i][j].y / 8) - 1)][enemyBulletPos[i][j].x + 1] |= (uint8_t)(bullet & 0xFF); // draw bullet
+          }
+        }
+      }
+              // draw enemy if alive
+      if (enemies[i].health == 0 && timeReached(&(enemies[i].rebornTimestamp), 0)) enemies[i].health = ENEMY_HEALTH;
+
+      if (enemies[i].health > 0)
+        drawInRow_buffer(screenRows[1], enemyBytes, enemies[i].x, ENEMY_LEN); // draw enemy
+    }
+
+    if (character.health > 0) drawInRow_buffer(screenRows[ROW_COUNT - 1], characterBytes, character.x, CHARACTER_LEN); // draw new data
+    //else exit(0);
+
+      // update screen
     for (i = 0; i < ROW_COUNT; ++i) displaySendRow(&mySPI, &displayDC, &displayCE, (const uint8_t*)(screenRows[i]), i, ROW_LEN);
 
     TIMER_IRQHandling(TIMER1_A_30hz_B_1000hz.pTIMERx_BaseAddress, SUBTIMER_A);
