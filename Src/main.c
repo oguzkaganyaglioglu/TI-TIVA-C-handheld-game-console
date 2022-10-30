@@ -282,6 +282,7 @@ int main(void)
   uint32_t timestamp = 0;
   uint32_t timestamp_enemyShoot = 0;
   uint32_t timestamp_enemyBullet = 0;
+  uint32_t timestamp_enemyMove = 0;
   uint32_t timestamp_buttonPress = 0;
 
   enemyBulletPos[0][0].y = 28;
@@ -315,20 +316,54 @@ int main(void)
     }
 
 
-    if (timeReached(&timestamp_enemyShoot, ENEMY_SHOOT_INTERVAL)) {
+    /*
+     * MOVE THE ENEMIES LEFT RIGHT
+     */
+    if (timeReached(&timestamp_enemyMove, 0)) {
+      // RANDOMIZE THE TIME BETWEEN ENEMY MOVES
+      timestamp_enemyMove = millis + 600 * ((rand() % 3 + 1));
+
+      static int8_t leftRightmovePos = 0;
+      static bool goRight = true;
+
+      if (goRight) leftRightmovePos++;
+      else if (!goRight) leftRightmovePos--;
+
+      for (u8_forLoopI = 0; u8_forLoopI < NUMBER_OF_ENEMIES; ++u8_forLoopI) {
+        enemies[u8_forLoopI].x += goRight ? 1 : -1;
+      }
+
+      if (leftRightmovePos > ENEMY_ROW_LEFT_RIGHT_MARGIN) goRight = false;
+      else if (leftRightmovePos + ENEMY_ROW_LEFT_RIGHT_MARGIN < 0) goRight = true;
+    }
+
+    /*
+     * MAKE A RANDOMLY PICKED ENEMY SHOOT EVERY X MILLISECONDS
+     */
+    if (timeReached(&timestamp_enemyShoot, 0)) {
+      // RANDOMIZE THE TIME BETWEEN SHOTS
+      timestamp_enemyShoot = millis + (ENEMY_SHOOT_INTERVAL / 2) * ((rand() % 3 + 1));
+
+      // PICK A RANDOM ENEMY
       uint8_t idx = rand() % NUMBER_OF_ENEMIES;
       if (enemies[idx].health > 0) {
         for (u8_forLoopJ = 0; u8_forLoopJ < ENEMY_MAX_BULLET_ON_SCREEN; ++u8_forLoopJ) {
+          // CHECK IF THE ENEMY CAN SHOOT
           if (enemyBulletPos[idx][u8_forLoopJ].done == false) continue;
+          // SHOOT
           enemyBulletPos[idx][u8_forLoopJ].y = ENEMY_BULLET_START_HEIGHT;
           enemyBulletPos[idx][u8_forLoopJ].x = enemies[idx].x + (ENEMY_LEN / 2);
           enemyBulletPos[idx][u8_forLoopJ].done = false;
           break;
         }
       }
-      else timestamp_enemyShoot = 0; // if the picken enemy is death then pick another one
+      // IF THE SELECTED IS UNABLE TO SHOOT, PICK ANOTHER ONE
+      else timestamp_enemyShoot = 0;
     }
 
+    /*
+     * MOVE THE BULLETS SHOT BY AN ENEMY
+     */
     if (timeReached(&timestamp_enemyBullet, 60)) {
       for (u8_forLoopI = 0; u8_forLoopI < NUMBER_OF_ENEMIES; ++u8_forLoopI) {
         for (u8_forLoopJ = 0; u8_forLoopJ < ENEMY_MAX_BULLET_ON_SCREEN; ++u8_forLoopJ) {
@@ -384,6 +419,9 @@ int main(void)
     }
 
 
+    /*
+     * MOVE THE BULLETS SHOT BY THE CHARACTER
+     */
     if (timeReached(&timestamp, 30)) {
 
       for (u8_forLoopI = 0; u8_forLoopI < CHARACTER_MAX_BULLET_ON_SCREEN; u8_forLoopI++) {
@@ -457,7 +495,6 @@ void TIMER1A_Handler() {
       for (j = 0; j < ENEMY_MAX_BULLET_ON_SCREEN; j++) {
         if (!enemyBulletPos[i][j].done) {
 
-          enemyBulletPos[i][j].x = enemies[i].x + (ENEMY_LEN / 2);
           // draw enemy's bullet
           uint16_t bullet = 0xF000 >> (enemyBulletPos[i][j].y % 8);
           screenRows[(ROW_COUNT - 1) - (enemyBulletPos[i][j].y / 8)][enemyBulletPos[i][j].x - 1] |= (uint8_t)((bullet >> 8) & 0xFF); // draw bullet
@@ -471,7 +508,8 @@ void TIMER1A_Handler() {
           }
         }
       }
-              // draw enemy if alive
+
+      // draw enemy if alive
       if (enemies[i].health == 0 && timeReached(&(enemies[i].rebornTimestamp), 0)) enemies[i].health = ENEMY_HEALTH;
 
       if (enemies[i].health > 0)
