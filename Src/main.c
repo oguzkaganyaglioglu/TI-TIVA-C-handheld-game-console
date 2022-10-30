@@ -3,9 +3,14 @@
 // www.oguzkagan.xyz
 //
 
+
+
 #define CHARACTER_LEN     9
 #define ENEMY_LEN         11
 #define NUMBER_OF_ENEMIES 6
+
+#define ENEMY_KILL_SCORE  10 // this is how much score the player gets by each enemy kill
+#define GET_HIT_SCORE     50 // if the player gets hit this is the amount of score it loses
 
 #define ENEMY_SHOOT_INTERVAL 300
 
@@ -55,6 +60,7 @@ typedef struct {
   uint8_t  x; // x position
   uint8_t  health;
   uint32_t rebornTimestamp;
+  uint16_t score;
 } character_t;
 
 static const uint8_t enemyBytes[ENEMY_LEN] = {
@@ -161,6 +167,7 @@ int main(void)
    **/
   character.x = (ROW_LEN / 2) - (CHARACTER_LEN / 2);
   character.health = CHARACTER_HEALTH;
+  character.score = 0;
 
   /**
    * POT PIN CONFIG
@@ -386,7 +393,7 @@ int main(void)
 
 
           // check if the bullet hit the character
-          if (enemyBulletPos[u8_forLoopI][u8_forLoopJ].y > ENEMY_BULLET_END_HEIGHT && enemyBulletPos[u8_forLoopI][u8_forLoopJ].y < 8 && (enemyBulletPos[u8_forLoopI][u8_forLoopJ].x + 1 >= (character.x) && enemyBulletPos[u8_forLoopI][u8_forLoopJ].x <= (character.x + CHARACTER_LEN))) {
+          if (character.health > 0 && enemyBulletPos[u8_forLoopI][u8_forLoopJ].y > ENEMY_BULLET_END_HEIGHT && enemyBulletPos[u8_forLoopI][u8_forLoopJ].y < 8 && (enemyBulletPos[u8_forLoopI][u8_forLoopJ].x + 1 >= (character.x) && enemyBulletPos[u8_forLoopI][u8_forLoopJ].x <= (character.x + CHARACTER_LEN))) {
             // possible hit, use logical and to be sure 
             uint8_t bullet_byteArray[3];
 
@@ -411,6 +418,10 @@ int main(void)
               hit = hit || (bullet_byteArray[2] & characterBytes[startAddr + 2]);
 
             if (hit) {
+
+              // REMOVE POINTS
+              if (character.score > GET_HIT_SCORE) character.score -= GET_HIT_SCORE;
+              else character.score = 0;
 
               enemyBulletPos[u8_forLoopI][u8_forLoopJ].done = true;
 
@@ -445,9 +456,13 @@ int main(void)
 
               if (enemies[u8_forLoopJ].health == 0) {
                 enemies[u8_forLoopJ].rebornTimestamp = millis + ENEMY_REBORN_TIME;
+
+                // ADD SCORE
+                character.score += ENEMY_KILL_SCORE;
               }
 
               characterBulletPos[u8_forLoopI].done = true;
+
             }
           }
         }
@@ -476,7 +491,7 @@ void TIMER1A_Handler() {
     // clear screen buffer
     for (i = 0; i < ROW_COUNT; ++i) clearRow_buffer(screenRows[i], 0, ROW_LEN);
 
-
+    printNumber_buffer(character.score, 0, 0);
 
     // draw character's bullet
     for (i = 0; i < CHARACTER_MAX_BULLET_ON_SCREEN; i++) {
