@@ -21,8 +21,9 @@ My main goal with this project is to learn TIVA C. Because of that, I am not usi
   ### GAME
    - [x] CHARACTER MOVEMENT
    - [x] CHARACTER GUN (PLAYER CAN SHOOT THE ENEMIES)
+   - [x] ENEMY MOVEMENT    
    - [x] ENEMY GUN (ENEMY CAN SHOOT THE CHARACTER)
    - [x] HEALTH SYSTEM
    - [ ] HEALTH BAR
-   - [ ] SCORE BAR 
-   - [ ] ENEMY MOVEMENT      
+   - [ ] SCORE BAR   
+   - [ ] PARTICLE EFFECTS
