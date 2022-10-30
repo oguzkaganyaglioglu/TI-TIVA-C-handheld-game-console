@@ -146,6 +146,14 @@ int main(void)
     enemies[u8_forLoopI].x = (ENEMY_ROW_LEFT_RIGHT_MARGIN + ENEMY_LEFT_RIGHT_PADDING) + (u8_forLoopI * ((ROW_LEN - (2 * ENEMY_ROW_LEFT_RIGHT_MARGIN)) / NUMBER_OF_ENEMIES));
     enemies[u8_forLoopI].health = ENEMY_HEALTH;
     enemies[u8_forLoopI].rebornTimestamp = 0;
+    /**
+      * INITIALIZE BULLETS
+      **/
+    for (u8_forLoopJ = 0; u8_forLoopJ < ENEMY_MAX_BULLET_ON_SCREEN; ++u8_forLoopJ) {
+      enemyBulletPos[u8_forLoopI][u8_forLoopJ].x = 0;
+      enemyBulletPos[u8_forLoopI][u8_forLoopJ].y = 0;
+      enemyBulletPos[u8_forLoopI][u8_forLoopJ].done = true;
+    }
   }
 
   /**
