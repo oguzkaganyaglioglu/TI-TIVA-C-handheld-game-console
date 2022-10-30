@@ -491,7 +491,14 @@ void TIMER1A_Handler() {
     // clear screen buffer
     for (i = 0; i < ROW_COUNT; ++i) clearRow_buffer(screenRows[i], 0, ROW_LEN);
 
+    // print the score
     printNumber_buffer(character.score, 0, 0);
+
+    // draw the health bar
+    for (i = 0; i < character.health; ++i) {
+      screenRows[0][(ROW_LEN - 1) - 1 - (i * 4)] |= 0xE;
+      screenRows[0][(ROW_LEN - 1) - (i * 4)] |= 0xE;
+    }
 
     // draw character's bullet
     for (i = 0; i < CHARACTER_MAX_BULLET_ON_SCREEN; i++) {
