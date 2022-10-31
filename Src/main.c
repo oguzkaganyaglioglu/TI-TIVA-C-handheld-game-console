@@ -9,6 +9,12 @@
 #define ENEMY_LEN         11
 #define NUMBER_OF_ENEMIES 6
 
+#define TIME_BETWEEN_CHARACTER_FLICKERS 150
+#define CHARACTER_FLICKER_LEN_MS        75
+
+#define TIME_BETWEEN_ENEMY_FLICKERS 75
+#define ENEMY_FLICKER_LEN_MS        50
+
 #define ENEMY_KILL_SCORE  10 // this is how much score the player gets by each enemy kill
 #define GET_HIT_SCORE     50 // if the player gets hit this is the amount of score it loses
 
@@ -45,6 +51,13 @@
 #include "nokia5110.h"
 
 typedef struct {
+  bool flickerInProgress;
+  uint8_t count;
+  uint32_t nextTimestamp;
+  uint32_t flickerTimestamp;
+} flickerEffect_t;
+
+typedef struct {
   uint8_t x;
   uint8_t y;
   bool done;
@@ -54,6 +67,7 @@ typedef struct {
   uint8_t  x; // x position
   uint8_t  health;
   uint32_t rebornTimestamp;
+  flickerEffect_t flicker;
 } enemy_t;
 
 typedef struct {
@@ -61,6 +75,7 @@ typedef struct {
   uint8_t  health;
   uint32_t rebornTimestamp;
   uint16_t score;
+  flickerEffect_t flicker;
 } character_t;
 
 static const uint8_t enemyBytes[ENEMY_LEN] = {
@@ -120,10 +135,11 @@ uint32_t millis = 0;
  * @param timeoutValue the number of milliseconds to add to the current timestamp
  * @return true  the time has reached and the timer is setted to the future timestamp
  * @return false the time has not reached
+ * @note if timeoutValue is equal to 0 then the time variable will not be updated
  */
 bool timeReached(uint32_t* time, uint32_t timeoutValue) {
   if (*time <= millis) {
-    *time = millis + timeoutValue;
+    if (timeoutValue != 0) *time = millis + timeoutValue;
     return true;
   }
   return false;
@@ -168,6 +184,7 @@ int main(void)
   character.x = (ROW_LEN / 2) - (CHARACTER_LEN / 2);
   character.health = CHARACTER_HEALTH;
   character.score = 0;
+  character.flicker.count = 0;
 
   /**
    * POT PIN CONFIG
@@ -418,6 +435,10 @@ int main(void)
               hit = hit || (bullet_byteArray[2] & characterBytes[startAddr + 2]);
 
             if (hit) {
+              // ADD FLICKERING EFFECT
+              character.flicker.count = 3;
+              character.flicker.flickerTimestamp = millis;
+              character.flicker.flickerInProgress = false;
 
               // REMOVE POINTS
               if (character.score > GET_HIT_SCORE) character.score -= GET_HIT_SCORE;
@@ -451,6 +472,11 @@ int main(void)
           for (u8_forLoopJ = 0; u8_forLoopJ < NUMBER_OF_ENEMIES; ++u8_forLoopJ) {
             uint8_t _enemyPos_hb = enemies[u8_forLoopJ].x;
             if (_enemyPos_hb <= characterBulletPos[u8_forLoopI].x && characterBulletPos[u8_forLoopI].x < (_enemyPos_hb + ENEMY_LEN) && enemies[u8_forLoopJ].health > 0) {
+              // ADD FLICKERING EFFECT
+              enemies[u8_forLoopJ].flicker.count = 1;
+              enemies[u8_forLoopJ].flicker.flickerTimestamp = millis;
+              enemies[u8_forLoopJ].flicker.flickerInProgress = false;
+
               if (enemies[u8_forLoopJ].health > CHARACTER_DAMAGE) enemies[u8_forLoopJ].health -= CHARACTER_DAMAGE;
               else enemies[u8_forLoopJ].health = 0;
 
@@ -539,17 +565,55 @@ void TIMER1A_Handler() {
         }
       }
 
-      // draw enemy if alive
+      // check if it is time to reborn the enemy 
       if (enemies[i].health == 0 && timeReached(&(enemies[i].rebornTimestamp), 0)) enemies[i].health = ENEMY_HEALTH;
 
-      if (enemies[i].health > 0)
-        drawInRow_buffer(screenRows[1], enemyBytes, enemies[i].x, ENEMY_LEN); // draw enemy
+      if (enemies[i].health > 0) {
+        if (enemies[i].flicker.count > 0 && timeReached(&(enemies[i].flicker.nextTimestamp), 0)) {
+        // flicker the enemy
+
+          if (enemies[i].flicker.flickerInProgress) {
+            if (timeReached(&(enemies[i].flicker.flickerTimestamp), 0)) {
+              drawInRow_buffer(screenRows[1], enemyBytes, enemies[i].x, ENEMY_LEN);
+              enemies[i].flicker.flickerInProgress = false;
+              enemies[i].flicker.nextTimestamp = millis + TIME_BETWEEN_ENEMY_FLICKERS;
+              enemies[i].flicker.count--;
+            }
+          }
+          else {
+            enemies[i].flicker.flickerInProgress = true;
+            enemies[i].flicker.flickerTimestamp = millis + ENEMY_FLICKER_LEN_MS;
+          }
+        }
+        else
+          // draw the enemy
+          drawInRow_buffer(screenRows[1], enemyBytes, enemies[i].x, ENEMY_LEN);
+      }
     }
 
-    if (character.health > 0) drawInRow_buffer(screenRows[ROW_COUNT - 1], characterBytes, character.x, CHARACTER_LEN); // draw new data
-    //else exit(0);
+    if (character.health > 0) {
+      if (character.flicker.count > 0 && timeReached(&(character.flicker.nextTimestamp), 0)) {
+      // flicker the character
 
-      // update screen
+        if (character.flicker.flickerInProgress) {
+          if (timeReached(&(character.flicker.flickerTimestamp), 0)) {
+            drawInRow_buffer(screenRows[ROW_COUNT - 1], characterBytes, character.x, CHARACTER_LEN);
+            character.flicker.flickerInProgress = false;
+            character.flicker.nextTimestamp = millis + TIME_BETWEEN_CHARACTER_FLICKERS;
+            character.flicker.count--;
+          }
+        }
+        else {
+          character.flicker.flickerInProgress = true;
+          character.flicker.flickerTimestamp = millis + CHARACTER_FLICKER_LEN_MS;
+        }
+      }
+      else
+        // draw the character
+        drawInRow_buffer(screenRows[ROW_COUNT - 1], characterBytes, character.x, CHARACTER_LEN);
+    }
+
+  // update screen
     for (i = 0; i < ROW_COUNT; ++i) displaySendRow(&mySPI, &displayDC, &displayCE, (const uint8_t*)(screenRows[i]), i, ROW_LEN);
 
     TIMER_IRQHandling(TIMER1_A_30hz_B_1000hz.pTIMERx_BaseAddress, SUBTIMER_A);
