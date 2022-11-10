@@ -27,3 +27,5 @@ My main goal with this project is to learn TIVA C. Because of that, I am not usi
    - [x] HEALTH BAR
    - [x] SCORE BAR   
    - [ ] PARTICLE EFFECTS
+   - [ ] GAMEOVER SCREEN
+   - [ ] GAME START SCREEN (SOMETHING LIKE, PRESS THE BUTTON TO START)
