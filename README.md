@@ -4,6 +4,7 @@ In this project, I am creating a little game console using TIVA C Launchpad!.
 My main goal with this project is to learn TIVA C. Because of that, I am not using any external library and coding everything from scratch.
 
 ## PROGRESS
+Basic game functionalities completed
   ### GPIO DRIVER
    - [x] ANALOG INPUT
    - [x] DIGITAL INPUT
@@ -27,5 +28,5 @@ My main goal with this project is to learn TIVA C. Because of that, I am not usi
    - [x] HEALTH BAR
    - [x] SCORE BAR   
    - [ ] PARTICLE EFFECTS
-   - [ ] GAMEOVER SCREEN
+   - [ ] GAME OVER SCREEN
    - [ ] GAME START SCREEN (SOMETHING LIKE, PRESS THE BUTTON TO START)
